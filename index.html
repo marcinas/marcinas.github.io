@@ -1,0 +1,583 @@
+<!--Emergence Simulation
+	by Marceline Peters / https://github.com/marcinas
+	January - April 2017
+	University of Washington, Tacoma
+
+	original: protoplanets - https://threejs.org/examples/webgl_gpgpu_protoplanet.html
+ 	by mr.doob / http://mrdoob.com/
+ 	modifications by Marceline Peters
+	see readme for additional credits
+-->
+
+<!-- EMERGENCE SIMULATION -->
+<!DOCTYPE html>
+<html lang="en">
+
+	<!--information, basic html -->
+	<head>
+
+		<!--version history, to do, done list-->
+		<script>
+			/*******************************************************************************
+			 * VERSION HISTORY
+			 *******************************************************************************/
+			var VERSION = {
+				VERSIONS: [
+					"Version Alpha 0.4+prior: see alpha version files",
+					
+					"Version Beta  0.1: protoplanets fork from three js examples",
+					"Version Beta  0.2: toroid geometry added; file restructure; particles float within geometry bounds",
+					"Version Beta  0.3: layered statistics and added custom stat",
+					"Version Beta  0.5: entire rendering/graphics code rewrite begin; floating rainbow points",
+					"Version Beta  0.7: sizing introduced; floating variously sized 2d squares",
+					"Version Beta  1.0: ball texture used; dark ringed volumetric spheres",
+					"Version Beta  1.1: controls and statistics restructure",
+					"Version Beta  1.8: object oriented rewrite begin",
+					"Version Beta  2.5: file structure organization",
+					"Version Beta  2.9: last beta version; forward compatibility expected of Beta 2.9",
+					"Version Beta  2.9+prior: see beta version files",
+					
+					"Version Gamma 0.0: quanta (mass = 1) now have no collision options so they can act as energy; gaussian random function debug/rewrite; monads remember location of last impact " +
+										"and randomly emit particles in a similar direction and of a similar 'charge'; major changes to rendering and updating to efficiently process/display a more " +
+										"complex scene; efforts for backwards compatibility use in code design; first update header: fixed bad merge bug (needed crosses at -1 with unit/2 radius); " +
+										"added weighting scaling to prevMatch as well; first more obvious emergence display (particles now communicate through what look like sound waves); " +
+										"controls structuring; other changes based on conversion from particle-particle collider to quanta-monad-particle-collider; " +
+										"(versions 0.0a-0.0b formerly beta 3.0-3.3)",
+					"Version Gamma 0.1: added version visual; fixed crossover, collision, and zone bugs allowing overlap; altered size/unit formula for no crashing; bugfixed max particle capacity " +
+									   	"options (displacement) with; added overloading mass options; fixed click on particle; added clear quanta button; changed initial zoning and zoning correction " +
+										"for better speed; altered zone functions to optimally work with new requirements",
+					"Version Gamma 0.2: added basic unexciting bonding structure; rewrote stats panel and output (stats panel has been updated and debugged); added some controls labels; " +
+										"collision and emission visual controls added; tweaked default sizing ratio and exp; particles now display collide color 1 frame earlier (-2% opt)",
+					"Version Gamma 0.3: further tweaks to statistics gathering and control (resets now); some optimization tweaks (1%); double-click on particle fix to a partial second; " +
+										"reorganized crossover/zones collision detection to better work with large particles; added reabsorption; fixed refresh sim visuals; added midpoint positioning " +
+										"at collision; organization and rewrite of readme; moved debug to basic.js; outOfBounds distance corrected with new getToroidDistanceTo function " +
+										"that checks all 8 possible toroid configurations for a monad (-5% opt); added charts functionality and positioning to simulation, with info from " +
+										"start to current time (monad charge, quanta charge, distance between particles 0 and 1; charts and stats now have ability to place a midline " +
+										"stats/charts can change each data point on red-purple-blue color scale based on input 0-100; added color key and monad size distribution chart " +
+										"added distinct color changes for monad-monad merging, bonding, and single-tick absorb/merge-emit; edited color scheme; emission-collision same quanta fixed ",
+					"Version Gamma 0.4: changed charts to now have extra color dimension separate from height; moved temperature to charts; bugfixes; added impact effect control; " +
+										"fixed escape check detection; reabsorption has been bugfixed, finally; changed startup controls defaults; rewrote bonding to be local only and managed " +
+										"through position correction based on weight, current speed, with excess effects and toroid wrapping; bugfixed to visuals and recalcing unescaped quanta; " +
+										"added commenting to multiple sections; group.js deleted since it is no longer needed in current bonding scheme; click-monad interaction visuals tweaked; " +
+										"particle coloring scheme has been redone, with darkness now used as a measure of distance (blackoutRadius has been removed and distanceFactor added)",
+					"Version Gamma 0.5: made a *much* smoother simulation viewing experience at cost of -5% opt; simulation and statistics tweaked so first tick only gather stats and updates them; " +
+										"initial generation tweaked; statistics code tweak for simpler data structure; statistics color charts now have full 6-hex color, background color bugfix; " +
+										"interactive.js and basic.js combined and hash code tweaked; added dual monad test mode and output statistics; added first stages of image capture for data; " +
+										"logs file removed from versions and placed into research; multiple-round testing and rudimentary tracker setup; first multi-run dual particle simulation farming",
+					"Version Gamma 0.6: nearly finalized to-do into public publishing to-do and long-term; bugfixed major getToroidDistanceTo issues regarding checking all possible measurements; " +
+										"statistics now update on a true [1,freq] cycle instead of randomly throughout cycle; particle resize on window resize fixed; simulation id updating tweaked; "+
+										"removed from statistics: particle count, average monad mass, instability; remade in statistics: occupancy, occupancy immediate, monad count, msd + average mass; " +
+										"rearranged statistics panel placement; double-clicking set to fps; boxes now toroid-warp with particle; statistics now has customizable color schemes; " +
+										"window.onbeforeunload confirmation; initial camera setup and positioning tweaked; more commenting throughout; fixed restart when paused spamming multi-runs; " +
+										"added basic color-neutral mode (needs different distance effect); statistics variable renaming and panel display tweaks; rewrote some zones code simpler; " +
+										"much more multi-run dual particle simulation farming; redid visual controls layout and added bonding; changed bonding colors",
+					"Version Gamma 0.7: toroid wrap-around supersize (larger than half zone) particle bonding, unbonding and collision fixed; +5% to opt thanks to some code and stats reconfiguration; " +
+										"impactEffect changed to quantaWeight rewritten to affect ratios between only quanta and monads; bonding now has sliders and toggles to control effects; " +
+										"default controls and bonding effects tweaked; monad visuals in simulation fixed to update whenever changes occur; changes to some variable names and setup; " +
+										"major changes to bonding, collision, merging, and bouncing (bouncing has been tweaked to analyze for monad-monad, quanta-monad, and parent-child collisions, " +
+										"collision now differentiated from merging so tiered and combined behaviours are possible, and some mathematics tweaked--theoretically backwards compatible); " +
+										"default modes and mode-selection changes, including stress, research, and clump; most files are now mostly commented",
+					"Version Gamma 0.8: variables renamed in monad and elsewhere; statistics refactor into prototypes gives +5% to opt; occupancy/tick replacing with bondings/tick; variable renames " +
+										"tweaks to code to improve efficiency or readability; all basic commenting finished for all files; todos gone through and minor changes/bugfixes throughout; " +
+										"double-checking of all files; added banner and link to github; prepped files for upload",
+
+					"Version Release 1.0: uploaded to github"
+				],
+
+				CURRENT_VERSION: "",
+				CURRENT_NOTES: ""
+			};
+			VERSION.CURRENT_VERSION = VERSION.VERSIONS[VERSION.VERSIONS.length - 1].slice(8,19);
+			VERSION.CURRENT_NOTES = VERSION.VERSIONS[VERSION.VERSIONS.length - 1].slice(21);
+
+
+
+			/*******************************************************************************
+			 * TO-DO				short term, to be completed by April 2017
+			 *******************************************************************************
+			 	all done :)
+			 ******************************************************************************/
+
+
+
+			/*******************************************************************************
+			 * TO-SOMEDAY-DO	  long term, to be completed next research/development cycle
+			 *******************************************************************************
+
+			 	add popup that triggers first time low fps encountered, pauses and asks (do you want to continue running sim?)
+				add frame-rate limit to prevent slowdown during very fast simulations (where statistics calcs are the bottleneck)
+			 	write function to gather monad info in CSV format for every # of frames
+					write to text file the logs
+			 	revise basic.takeSnapshot() to also take snapshot of statistics screen and controls fully opened
+				 	also re-enable under certain circumstances
+			 	track broken bonds
+				indicator for displacement/capacity
+				basic.debug(): check what prints on all combinations:
+					null values, undefined, 0, strings, arrays, array of strings, etc. 
+					possible add new function as well: stringify() which has different instructions for each data type
+			 	monad.bounce() should have more research on how interactions work
+			 	split monad.qunata.countdown into color only variable and actual escape tracking variable separately
+				 	move countdown and mountdown to color (see also new color scheme idea, somewhere below)
+			 	monad.getToroidDistanceTo(): in if (x1 || y1 || z1 || x2 || y2 || z2)
+				 	optimize by only cycling through appropriate zones (check zone intersection code)
+			 	monad.checkBond(): in //get raw distance and weighted speed,
+				 	what about max speed check? why only check < 1?
+					should we have it less than 1? why? other than obvious fact of speed too fast to bond?
+				fix energy loss for merge-only simulations:
+					monad-monad-collision doesn't re-absorb the absorbed monad's quanta 
+					(they are lost on reabsorption stage once their count is reached)
+			 	for monad.spaceDistanceTo(), find formula to always give perfect distance in toroid world (right now is just while loop)
+			 	when merging particles, if debug chosen index particle is nullified, change debug index to new particle index
+			    for exceeding max speed and bonding manipulations, add controls to control cost of extra excess quanta.e emissions
+				for statistics update, fill in more || 0 or NaN values to avoid weird results 
+					change bad values to negative? be careful of || though!! 0 is valid
+					stress test originally had funny values for polarity and size distribution (it doesn't appear to currently)
+			 	change monad research to record also distances for limited number of first particles
+				 	(i.e., 0/2, 1/2, 0/3, 1/3, 2/3, 0/4, 1/4, 2/4, 3/4)
+					or make dynamic so can scale so that all particle's distances/charges are measured
+					similarly update controls.world.strict settings so that all particles are equidistant
+				multiple textures for positive/negative particles (alternative to color-neutral mode)
+					maybe just a plus + on positives; minus - on negatives 
+				add button to make all particles red or blue
+					maybe a slider of color polarization? the more, the more red and blue particles will appear
+				take pictures of statistics information
+				z-indexing so layer is controls -> statistics -> simulation
+			 	checkout how to avoid javascript runtime violations (mostly from loops taking too long)
+			 	write collision and other looping to be parallel processed (changed emphasis to one super-fast simulation 
+				 	rather than many fast simulations)
+			 	check if added and constantly monitoring a .mass composition (similar to radius) in monad
+				 	affects runtime (currently, radius is always accurate but mass must be obtained from
+					 	adding attractons and repulsons whenever desired)
+			 	if possible to do and not slow simulation down: find a way to store double+ sets of
+				 	information in each monad in order to:
+					 	process every monad mathematically simultaneously (in the current system, if monads A, B, and C exist in the simulation and
+						 	have overlapping boundaries such that A is overlapping with B and B is overlapping with C (but A and C do not overlap)
+						 	within a single tick, there are rare but possible difference that can arise, say by: e.g. the overlaps being the barest
+							fractions of overlaps, merging being enabled but not bonding, and monad A is processed first, so it is merged with monad
+							B, creating an updated bigger monad positioned between the former monad A and monad B; monad B will not be processed because
+							it has merged; when monad C is processed, it will no longer be barely overlapping with monad B, and thus a potential
+							missed collision may occur)
+						process all statistics in same quantum step
+						analyze multiple event chaining (see the first argument above about simultaneous mathematics) in a way that ensures at least
+							for one quantum time step, there are no discrepancies based on monad order of processing
+			 	change colorCharge panel to be fully transparent except for red and blue and purpleness?
+				 	this way user can drag camera over it to have a monad right up against the color scale
+			  	add ability to download entire monad and settings dataset (all positions, velocities, etc.)
+				  	can re-upload dataset into simulation 
+				  	idea would be to be able to pause simulation, download, and resume another day or another computer
+					this way can create lots of very unique setups just from data and load them into simulation
+			 	color-neutral mode: have different distance effect (darkness won't do--maybe purpleness?)
+			 	relabel all of these quanta stuff with actual words...
+					update [terminology] working to attracton/repulson
+						i think this means change n/p -/+ to r/a
+			 	checkout cache/binding (see research todo and notes.txt)
+				run enough tests on mass to find minimum mass on scaled world size that blues connected to blues near 100%
+			 	keep doing what you're doing, describing model, etc. but come up with an experiment
+				 	can be large scale (we ran 100 experiments on blue--they merged 95% of the time, etc.)
+					or can treat it like: we created this simulation to see what would happen
+						and here are some of our observations
+					story part one: show (if massive enough) blue-blue and red-red combined
+					story part two: the shapes in bonding (tetrahedral, lines) think orange packing
+						two reds, two blues, one red, one blue, three reds, three blues (100%)
+							cvs of distance over time
+								averaged out over time to smooth anomalies (e.g. do blues really separate before uniting)
+						new checkbox for absolute median ? (also check deviation calculations)
+				make a Data object JSON (every object is string that can be saved) probably of emergence object or statistics object
+					check out MCGB2 database dump lines 328-386 fishnut.js
+					send email to M to set up/show database
+					in case of crash: every run being over, just upload the data
+						think data storage (as in, for a 3000 tick simulation, just export as csvs with titles)
+			 	make toroid have options:
+					toroid (already done)
+					bounce off wall
+					repel reverse direction
+					toroid but warp opposite
+					vanishing point--particles disappear beyond box
+						can also do simple radius from center
+			 	add trails behind monads
+			    consider rewriting ToroidDISTANCE if these are always same arguments (will need to check Zones.getcollisioninzone to see how gettoroiddistance used there)
+			 	change colors so that user can pick which of red,green,blue is positive and negative
+				add 26 cube copies of the environment around the central environment (like 26 toroid mirrors)
+					have them fade from transparent to nothing within a few zones of the edge, so near to the edge,
+						monads are visible in all their edge/corner locations, full opaque in central sim and transparent in side ones
+			 	add save and load of controls settings
+					 (see https://workshop.chromeexperiments.com/examples/gui/#5--Saving-Values)
+					 ALL CAPS in controls should be eliminated or integrated into presets
+			 	tooltips for all controls and settings
+			 	redo monad colors to have base color, over-color, and toggle to decide whether to use base or over
+					base color will always be red-blue spectrum with whiteout settings?
+					over-color will be collision, emission, bonding, etc. colors
+			 	check how new bonding and merging models will affect quantamerge
+				 	e.g. do experiments and watch to make sure results look 'normal'
+					 	single-quanta should always be absorbed
+				add effects that smaller particles have lower thresholds (distance?) for merging into
+					a big particle they are bonded with
+				rewrite collision-bonding mechanisms to ideally get bonding behavior without bonding arrays
+					e.g. just have particles try to avoid intersections? bouncing? shooting a/r into other monad?
+			 	line between two clicked particles
+					line between two particles that have exchanged quanta
+					line between two particles that are bonded
+			 	rewrite bounce rules for monad-monad non-bonding (right now always adds vectors for attractons > repulsons)
+			 	full color multi-layered histograms
+				 	like each rainbow color has a meaning, multiple transparent layers
+					extra lines and points like trendlines, local maxima, minima...
+					for log scale, just take log... duh
+					e.g. histogram of all monads:  sizes, charges, total emitted, bonded, speed, all in one chart
+			 	collision
+				 	redo to ray-casting collision (allows higher max speed but needs complete rewrite of zones and maybe monad)
+					bonding:
+					WHEN BONDed, emission does not collide until it leaves volume of all bonded monads
+						once it leaves, it can collide, even with itself
+			 	workaround chrome bug:
+				 	GL_INVALID_OPERATION : glGenSyncTokenCHROMIUM: fence sync must be flushed before generating sync token
+					WebGL: CONTEXT_LOST_WEBGL: loseContext: context lost
+				fix: bonding over toroid edges
+				maybe write photo taker or video taker
+				finish alpha-beta version cataloging
+				cleanup initialization to make faster
+				crossover bigger regions than 3x3x3 cube? (right now just scales up to 5x5x5, 7x7x7, etc.)
+				maybe particles warp space around them (use zones to record stability)
+				use attraction fields in zones for aggregate data to visualize (e.g., every zone has a color)
+				if feel missed collisions
+					try shadowing past movements or using ray collisions if movement exceeds radius in one frame
+				future: imagine structures... +/- arrangement (what do they look like internally?)
+				add bouncing, elastic collisions
+				new universe option: toroidal sphere....
+				toggle for 'gravitational' attraction to center
+				okay, so each monad has two impact points:
+				a red and blue vector
+					when a new collision occurs, the blue portion of the impact	is weighted and combined with the blue vector
+						same with red
+					when emitting, the red or blue quanta determines which impact vector it will use
+					all direction is a combination of the red and blue vector weighted
+					thus, on impact, blue and/or red vector is altered, and net velocity re-adjusted
+					could also have impact region (?)
+			 ******************************************************************************/
+
+
+
+			/*******************************************************************************
+			 * DONE :)				for prior accomplishments, see alpha and beta files
+			 *******************************************************************************
+				COMMENTS/CLEANUP: FULLY DONE (COMMENTED, VARIABLE RENAME and LINE COMMNETS and CLEAR JUNK CODE):
+					emergence_simulation.html
+					controls.js
+					readme.txt
+					basic.js
+					zones.js
+					monad.js
+					statistics.js
+					emergence.js
+				spellcheck, etc.
+				get rest of to-do list from readme
+				add banner to top
+				cleanup takeSnapshot function but leave disabled
+ 				CHECK ALL TO-DOs in all code and either do them or place them here or in to-someday-do
+				 	individual line TODOs gone through and either done, moved to to-someday-do, or scrapped
+				add [optional parameter] brackets to javascript documentation
+			 	color neutral: reload charge colors and other stats charts/panels to match scheme
+			  	have a new simulation that's loaded while in pause advance a single tick (resets the stats)
+			 	change hash options to drop-down menu
+				 	since stress test, monad research, and clump mode can't overlap
+					 leave debugInit as checkbox
+				bonds don't get removed on super merges (many heavy particles in center at generation)
+				collision checking fix for if combined radius is bigger than size (getToroidDistanceTo will negative numbers)
+				change 'collision' to 'merging' unless it actually checks for all interaction upon collision
+			    option to not keep bonding constant--just always nudge away from overlap
+			 	add sliders and toggles for bonding settings
+			 	collision colors flash
+			 	every collision per time step determines probability of impact-based emission (both by polarity and direction)
+					average or keep array of impacts and choose randomly from it
+			 	for < 200 datapoints, have statistics floor the calculated number (won't cut off half then)
+				 	only needed for msd
+			 	investigate:
+					sometimes pausing (pressing ;) if near a restart will cause two-monad tests to rapidly restart
+					sometimes quanta and monads timelapse charts will have a single line much higher or lower than others
+			 	further statistics cleanup:
+					left panel instant stuff (fps,ms,mb,em,col,noise,unalter)
+					left panel current stuff (quanta,monads,temp,dist,other time values, -msd)
+					bottom panel timelapse stuff (current - msd +monad size dist., change final value to average
+					ax: particle count, average monad mass, instability
+				color-blind mode (black negative, white positive, gray neutral, red background, distance by amount of background color mixed in?)
+			 	added confirmation before closing browser window (prevents accidental experiment end)
+				bug: particle boxes don't toroid warp (they continue into empty space)
+				add run id number for mass number testing
+				bugfix: screen height and width change particle size appearance
+				bugfix: getToroidDistanceTo Incorrect (see bonding over toroid walls)
+					multiple collisions over a few frames with just 2 particles? see Run 3: -1490353990040.log
+			 	look for
+					motion and interaction between two big particles
+						small rom, big room
+				possible bug: when changing visualization (showRadiation), it causes a collision (perhaps resetting monads?)
+			 	new bonding mechanisms (local only, positional based)
+					each monad attempts to readjust any bonded particle not immediately next to it
+					it can only move the particle up to both of the particles speeds weighted by mass
+					if it cannot move the particle all of the way, the remaining distance is converted
+						to excess (similar to converting max speed to excess) and quanta is emitted to conserve energy
+				major bugfix: reabsorption loss fix (particles leave the timeslots stream and particles reabsorb before emission)
+			 	write different color for monad-monad collision
+				impact % charge or emission can be scaled (e.g. 1 quanta does 20 quanta worth of impact--monads move faster)
+				similarly, possibly add averaged position when collide
+					(i.e., the position of new bigger particle is the average of the two colliding particles)
+				oob re-design to check all 8 possible toroid wraps
+ 				fix mpolarity, charge, polarity in statistics (pretty much all get very strange in non-strange conditions)
+					mpolarity gets negative; cloud charge get negative on stress test; etc. 
+			 	graph showing both quanta and monads and positive/negative using colors
+			 	add switch to turn off collision/emission colors
+				debug crossover (it's still not getting particles next door--see last screenshot)
+			 	clear quanta button
+				fix clicky mouse
+				recycle quanta instead of displace (lost quanta is readded (without velocity affects) to originator monad)
+				create enforceMass control
+					switch setup so that if ever the number of possible rendered particles reaches max and another needs to generate,
+					the farthest away, longest timed particle existence is replaced with the new emission
+						this will allow up to 1000s of high mass particles to interact and have a combined mass much higher than that of total renderable particles
+				make decay rate exponential
+				give every simulation an ID so it's easy to check prior photos
+				add a timer to show how long simulations are running
+				if possible w/ firefox
+					wrap code in anonymous functions
+					(function(window) {
+					//all code in your file goes here
+					})(window);
+				create graph function that takes in a lot of versatile data
+					dynamic so can get all sorts of data
+					maybe even during simulation
+						log plot and histograms for largest particle
+				add a print report button that prints a few frames of automatic debug material
+				use webform to put in constants
+				mass relates to volume/radius (oranges problem/ spheres)
+				for emission, place emitted particle on the sphere surface + 1 
+					fixed speed use maxspeed
+						emitted particle should be the fastest thing in system
+				neg/pos maybe affect vectors (pos/neg)
+				based on composition of particles, bouncing, bonding, merging with activation energies as well?
+				emission based on kicking out the minority particle
+				add toroid opposite end warp switch
+				add toggle for whether p/n actually effect each other
+				decide how lighting works (can be based on neighbors total, mass, etc.)
+					same for color, shape, maybe even transparency
+				bug fix (one emission with two components, split/emit and will they merge again?)
+					check on fixed vector--observe interaction
+				use webgl or three.js, up to you, will optimize better
+					optimize graphics
+				probability per tick of emission
+				attraction vs repulsion
+					no rules of attraction and repulsion (no cycling)
+					just emit positives/negatives and collisions affect trajectory
+					more like seeing if attraction/repulsion emerges
+				goal:
+					color of sphere changing floating around in space
+					toroidal
+				2nd goal:
+					spheres collides
+					color based on ratio of +/-
+					3d canvas
+					100 particle minimum, 1000s preferred
+			 ******************************************************************************/
+		</script>
+
+		<!--basic-->
+		<meta http-equiv="Access-Control-Allow-Origin" content="*">
+		<title>Emergence System Simulation</title>
+		<meta charset="utf-8">
+		<meta name="viewport" content="width=device-width, user-scalable=no, minimum-scale=1.0, maximum-scale=1.0">
+
+		<!--image import-->
+		<script src="images/ball.js"></script>
+		<script src="images/point.js"></script>
+
+		<!--effects only initial load (once particles load, resets elsewhere)-->
+		<style>
+			body {
+				background-color: #000000; /* only affects initial load */
+				margin: 0px;
+				overflow: hidden;
+				font-family:Monospace;
+				font-size:12px;
+				text-align:center;
+				text-align:center;
+				cursor: pointer;
+			}
+
+			a { color:#ffff00; }
+
+			#info {
+				color: #ffffff;
+				position: absolute;
+				top: 10px;
+				width: 100%;
+			}
+		</style>
+	</head>
+
+	<!--simulation proper-->
+	<body>
+
+		<!--loads js scripts-->
+		<script src="js/three.js"></script>
+		<script src="js/Detector.js"></script>
+		<script src="js/OrbitControls.js"></script>
+		<script src="js/GPUComputationRenderer.js"></script>
+		<script src="simulation/statistics.js"></script>
+		<script src="js/dat.gui.min.js"></script>
+
+		<!--statistics and data bars-->
+		<script>
+			/**
+			 * Sets up the modified statistics program to analyze the simulation during runtime.
+			 * This includes information on simulation composition and distribution both in realtime,
+			 * timed intervals, and on-request. See statistics.js file for more information.
+  			 */
+			var statistics = new Statistics();
+			
+			for (var d = 0; d < statistics.monitor.dom.length; d++)
+			document.body.appendChild( statistics.monitor.dom[d] );
+						
+			/**
+			 * Animation function created and immediately invoked (saves a lot of speed). Updates
+			 * statistics monitor (all panels who are due to update) and recursively calls itself
+			 * to read from the simulation and update statistical data accordingly. 
+			 */ 
+			(function animate()
+			{
+				statistics.monitor.update();
+				requestAnimationFrame( animate );
+			})();
+
+		</script>
+
+		<!--vertex shader-->
+		<script id="vertexShader" type="x-shader/x-vertex">
+			
+			varying vec3 vColor;
+			varying vec3 vStats;
+			varying vec2 vDist;
+
+			/**
+			 * Vertex shader uses workaround design to get additional information
+			 * into the system without extra variables. Input 'color' consists of six
+			 * data pieces packaged into the rgb scheme:
+			 * 		color = {
+			 * 			r: float -> { floor(r) = vStats.x, distance; r%1f = vColor.r, red [0,1) }
+			 * 			g: float -> { floor(g) = vStats.y, darkest; g%1f = vColor.g, green [0,1) }
+			 * 			b: float -> { floor(b) = vStats.z, size; b%1f = vColor.b, blue [0,1) }
+			 * 		}
+			 * Thus the integer floored values give us size data and two currently unused values
+			 * (Beta 0.5 has some aspects of this).
+			 */
+			void main() 
+			{
+				vStats = vec3( floor( color.r ),
+							   floor( color.g ),
+							   floor( color.b ) );
+
+				vec4 mvPosition = modelViewMatrix	 *	 vec4( position, 1.0 );
+
+				vDist = vec2( max( vStats.y / 1000.0, min( 1.0, vStats.x 	/  length( mvPosition.z ) )),
+							   300.0 	/  length( mvPosition.z ) );
+
+				vColor = vec3( (color.r-vStats.x) * vDist.x,
+							   (color.g-vStats.y) * vDist.x,
+							   (color.b-vStats.z) * vDist.x );
+
+				gl_PointSize = vStats.z 	*	vDist.y  ;
+				
+				gl_PointSize = max( gl_PointSize, 2.38 );
+				
+				gl_Position = projectionMatrix * mvPosition;	
+			}
+
+		</script>
+
+		<!--fragment shader-->
+		<script id="fragmentShader" type="x-shader/x-fragment">
+
+			uniform sampler2D texture;
+			varying vec3 vColor;
+
+			/**
+			 * Basic fragment shader design filtering out alpha values below 0.5.
+			 */
+			void main() 
+			{
+				gl_FragColor = vec4( vColor, 1.0 );
+			
+				vec4 tColor = texture2D( texture, gl_PointCoord );
+			
+				/* The below line will avoid chrome-related conditional crashes but the visual effects are undesirable. */
+				//tColor.a = tColor.a * floor(tColor.a + 0.5);
+				if ( tColor.a < 0.5 )//this conditional will crash chrome-related WebGL stuff after a long runtime (usually with several sims running at once)
+					discard;
+			
+				gl_FragColor = vec4( gl_FragColor.r	  *   tColor.r,
+									 gl_FragColor.g   *   tColor.g,
+									 gl_FragColor.b   *   tColor.b,
+									 tColor.a);
+			}
+		</script>
+
+		<!--load simulation js scripts-->
+		<script src="simulation/basic.js"></script>
+		<script src="simulation/controls.js"></script>
+		<script src="simulation/zones.js"></script>
+		<script src="simulation/monad.js"></script>
+		<script src="simulation/emergence.js"></script>
+
+		<!--emergence simulation-->
+		<script>
+			//"use strict";
+			/**
+			 * MAIN
+			 * 
+			 * The effective 'main' of the simulation. After all of the components have been loaded
+			 * (see above), the url message is used to determine constant reload settings (such as
+			 * maximum particle count and system presets). Then, the Emergence system object itself
+			 * is instantiated and set on an eternal animate loop.
+			 */
+			if (!Detector.webgl) Detector.addGetWebGLMessage();
+			setupWindow();
+
+			var DEBUG = false;
+			var bonded = 0;
+			var runs = 0;
+			var emergence = new Emergence(statistics);
+			emergence.startup();
+			
+			/**
+			 * Recursive immediately invoked animation function that calls the simulation to update
+			 * itself and all its components one frame/tick, renders all of the particles and other
+			 * visual objects/effects according to settings, and then has the statistics object
+			 * check monitored information and update displays as needed. Note that the system will
+			 * continue running, rendering, and monitoring statistics even if paused (controls to
+			 * pause or step-through the simulation are handled in the emergence.update() function). 
+			 */
+			(function animate()
+			{
+				requestAnimationFrame(animate);
+
+				emergence.update();
+				emergence.renderer.render(emergence.scene, emergence.camera);
+				statistics.monitor.update();
+
+				if (DEBUG) { debug(["system","scene"],emergence.scene); };
+				if (statistics.tick === emergence.runtime) {
+					takeScreenshot();
+					if (statistics.instant.bonds || statistics.maximum.bonds)
+						bonded++;
+					debug("always",emergence.monads[0].toString());
+					debug("always",emergence.monads[1].toString(emergence.monads[0]));
+					debug("always","Runs: " + ++runs + "    Bonds: " + bonded);
+				} else if (statistics.tick > emergence.runtime)
+					emergence.restartSimulation();
+			})();
+
+		</script>
+
+		<div id="info">
+			Emergence Simulation System<br/>a particle collider by <a href="https://github.com/marcinas" target="_blank">Marceline Peters</a><br/>
+		</div>
+		
+	</body>
+
+</html>
