@@ -102,7 +102,7 @@ function Controls(simulation)
             /** The smallest mass a generated particle can have */
             minimum: 1,
             /** The approximate median of all generated particles */
-            median: TEST ? MAXIMUM / 2 : (STRESS ? 1 : Math.pow(2, Math.max(0, log(2, MAXIMUM)-6))),
+            median: TEST ? MAXIMUM / 2 : (STRESS ? 1 : Math.pow(2, Math.max(0, log(2, MAXIMUM)-5))),
             /** The largest mass a generated particle can have */
             maximum: MAXIMUM,
             /** The standard deviation of mass, where with 0.0 inversion, 1.0 variance, 68.2% of monads will be within 1 deviation of median */
@@ -326,7 +326,7 @@ function Controls(simulation)
     document.getElementById('gui2').style.cssText = "position:fixed;bottom:0;left:0";
 
     /** Charts display button (bottom pane) gui */
-    this.gui3 = new dat.GUI({autoPlace: false, width: 1390 });
+    this.gui3 = new dat.GUI({autoPlace: false, width: 1349 });
     this.gui3.domElement.id = 'gui3';
     document.body.appendChild(this.gui3.domElement);
     document.getElementById('gui3').style.cssText = "position:fixed;bottom:0;left:206px";
