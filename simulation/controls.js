@@ -211,7 +211,7 @@ function Controls(simulation)
             /** The ratio (in combined radius distance) a monad can flee before the bond breaks (1.0 is perfect contact) */
             breakRatio: 1 + this.constant.granularity,
             /** The ratio (in combined radius distance) a monad can intersect before they collapse-merge (0.0 means they will never collapse-merge) */
-            mergeRatio: 0.8
+            mergeRatio: 0
         }
     };
 
