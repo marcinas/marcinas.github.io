@@ -35,7 +35,7 @@ function Controls(simulation)
 	this.hash = getHashInformation();
 
     //local constants based on hash
-    var TOTAL = this.hash[0] || Math.pow(2,18);
+    var TOTAL = this.hash[0] || Math.pow(2,17);
     var STARTUP = DEBUG = this.hash[1] || false;
     var STRESS = (this.hash[2] || 0) === 1;
     var TEST = (this.hash[2] || 0) === 2;
@@ -361,6 +361,7 @@ Controls.prototype.setup = function()
     var MIN_DIFF = constant.granularity;
     var MAX_VEL = emission.velocity;
     var MAX_RENDER_DISTANCE = this.RENDER;
+    var message = { text: "   if slow, lower Maximum Mass" };
 
     //button functions
     var buttonRefresh = { refreshSimulation: function () {
@@ -405,6 +406,7 @@ Controls.prototype.setup = function()
     controlsConstant.add(constant, "granularity", 0.000001,1.0,0.000001).name('Controls Granularity');
     controlsConstant.add(constant, "power", 0.0, 20.0, 1.0).onChange(SIM_controls).name('Maximum Mass: 2 ^');
     controlsConstant.add(constant, 'maximum').listen().name('Maximum Particles');
+    controlsConstant.add(message, 'text').name("Runtime FPS Notice");
     controlsConstant.open();
 
     /* GENERATION */
