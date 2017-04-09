@@ -81,14 +81,15 @@
 										"tweaks to code to improve efficiency or readability; all basic commenting finished for all files; todos gone through and minor changes/bugfixes throughout; " +
 										"double-checking of all files; added banner and link to github; prepped files for upload",
 
-					"Version Release 1.0: uploaded to github"
+					"Version Release 1.00: uploaded to github, identical to Gamma 0.8",
+					"Version Release 1.01: changed initial maximum mass load, removed snapshot taking, added runtime fps information"
 				],
 
 				CURRENT_VERSION: "",
 				CURRENT_NOTES: ""
 			};
-			VERSION.CURRENT_VERSION = VERSION.VERSIONS[VERSION.VERSIONS.length - 1].slice(8,19);
-			VERSION.CURRENT_NOTES = VERSION.VERSIONS[VERSION.VERSIONS.length - 1].slice(21);
+			VERSION.CURRENT_VERSION = VERSION.VERSIONS[VERSION.VERSIONS.length - 1].slice(8,20);
+			VERSION.CURRENT_NOTES = VERSION.VERSIONS[VERSION.VERSIONS.length - 1].slice(22);
 
 
 
@@ -562,7 +563,7 @@
 
 				if (DEBUG) { debug(["system","scene"],emergence.scene); };
 				if (statistics.tick === emergence.runtime) {
-					takeScreenshot();
+					//takeScreenshot();
 					if (statistics.instant.bonds || statistics.maximum.bonds)
 						bonded++;
 					debug("always",emergence.monads[0].toString());
