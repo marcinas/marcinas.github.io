@@ -1,12 +1,11 @@
 /**
- * Emergence Simulation
+ * Emergence Simulation System
  * @author Marceline Peters / https://github.com/marcinas
- * January - April 2017
- * University of Washington, Tacoma
- * 
+ *
  * original: stats.js - http://github.com/mrdoob/stats.js
  * @author mr.doob / http://mrdoob.com/
  * modifications by Marceline Peters
+ *
  * see readme for additional credits
  */
 
@@ -14,7 +13,7 @@
 
 /**************************************************************/
 /**************************************************************/
-/*******************		STATISTICS		*******************/
+/**********************		STATISTICS		***********************/
 /**************************************************************/
 /**************************************************************/
 
@@ -29,13 +28,14 @@ function Statistics()
     this.reset(); //called to set all traits for first run
     this.monitor = new Monitor(this); //the visuals
     this.time.fps = 30;//default value in case FPS not set yet
+    if (MOBILE) this.changeVisibility();
 }
 
 /**
  * Because statistics must be totally reset confidentially at the start/restart of the simulation,
- * all of its traits (except monitor) are set/reset within one function. Statistics contains 
+ * all of its traits (except monitor) are set/reset within one function. Statistics contains
  * several types of data:
- * 
+ *
  *      uncategorized       administrative variables that categorical variables use for reference,
  *                          and other than 'tick' are not visible to the user or modifiable by them
  *                          directly
@@ -45,7 +45,7 @@ function Statistics()
  *      current             large array statistics that are true for one tick of the simulation
  *                          and are collected at varying time intervals; each array represents
  *                          parallel data attributes taken at a single point in time
- *      instant             single variables that each represent one datum taken every tick of 
+ *      instant             single variables that each represent one datum taken every tick of
  *                          the simulation; these are always up-to-date
  *      maximum             used to gather the maximum data point captured for varying statistics
  *                          used by the other categories; may be instantly updated or updated
@@ -55,7 +55,7 @@ function Statistics()
 Statistics.prototype.reset = function()
 {
     /** How many frames or quantum time steps the simulation has progressed */
-    this.tick = 0; 
+    this.tick = 0;
     /** How many ticks until updating computationally heavy stats */
     this.cycle = 50;//faster than 50 seems to produce slowdown at times
     /** For storing tick frequency difference values */
@@ -72,7 +72,7 @@ Statistics.prototype.reset = function()
     this.twoTone = false;
     /** Default opacity of panels and charts when visible */
     this.opacity = 0.9;
-    
+
     /** Handles factors related to runtime specific to statistics (tick and cycle are for the simulation proper, which runs asynchronously with statistics) */
     this.time = {
         /** True only when statistics has been reset and hasn't yet run the update gamut yet */
@@ -213,7 +213,7 @@ Statistics.prototype.reset = function()
  * At the end of every unpaused update cycle, the simulation gathers uses the current particle
  * data to update the appropriate statistics. Note that while individual particle data is collected
  * by the simulation in statistics, this call is expected following every tick because the data
- * gets aggregated. In addition, all of the logs are updated. 
+ * gets aggregated. In addition, all of the logs are updated.
  *
  * @param {Object} simulation        the simulation from which to read data from
  */
@@ -283,12 +283,12 @@ Statistics.prototype.update = function(simulation)
         var zone = [];
         var len = 0;
         var index = 0;
-        
+
         for (var x = 0; x < length; x++)  for (var y = 0; y < length; y++)   for (var z = 0; z < length; z++) {
             zone = zones[x][y][z];
             len = zone[0];
             if (len > 0) {
-                occupied++; 
+                occupied++;
                 localcharge = localmass = 0;
                 for (var p = 1; p <= len; p++) {//because the first index of any zone is the occupancy length
                     monad = monads[zone[p]];
@@ -328,12 +328,12 @@ Statistics.prototype.update = function(simulation)
 
 /**
  * Checks whether a given frequency difference should allow an update or not.
- * 
+ *
  * @param {int} diff the frequency: -1 for running every cycle
  *                                  0  for running every tick
  *                                  Infinity for running only once
  *                                  [0,Infinity) for running every cycle but offset
- * 
+ *
  * @return {boolean} whether the given frequency difference validates an updated
  */
 Statistics.prototype.checkTick = function(diff)
@@ -349,15 +349,15 @@ Statistics.prototype.checkTick = function(diff)
 /**
  * If possible, returns a unique offset value from the statistics cycle. This allows certain charts
  * to update once a cycle but without any competing updates to improve simulation smoothness.
- * The diffs array is used to store already picked random offsets; once the array is full 
+ * The diffs array is used to store already picked random offsets; once the array is full
  * (every tick has an operation heavy data gathering), simply random offsets are returned.
- * 
+ *
  * @param {int} freq  0<=Z  the frequency limit, where a random diff at or below the frequency
  *                          will be returned
- * 
+ *
  * @return {int} a random frequency offset that is unique if stats.diffs isn't full
  */
-Statistics.prototype.getDiff = function(freq) 
+Statistics.prototype.getDiff = function(freq)
 {
     var count = 0;
     var diff = 0;
@@ -374,7 +374,7 @@ Statistics.prototype.getDiff = function(freq)
 /**
  * Simply switches whether all panels/charts are visible or not. If not given an opacity argument,
  * sets opacity to default (0.9).
- * 
+ *
  * @param {float} [opacity]   [0,1]   opacity the panels should be
  */
 Statistics.prototype.changeVisibility = function(opacity)
@@ -397,7 +397,7 @@ Statistics.prototype.changeVisibility = function(opacity)
  * Creates the layout elements to hold all visual panels, then creates all of the panels and charts
  * to be used in the simulation. Once everything has been instantiated, the monitor object is only
  * responsible for updating the panels when appropriate.
- * 
+ *
  * @param {Statistics} stats the statistics object
  */
 function Monitor(stats)
@@ -415,7 +415,7 @@ function Monitor(stats)
     var c3 = document.createElement("div");
     var c4 = document.createElement("div");
     var c5 = document.createElement("div");
-    
+
     //positions and styles of panels/charts groups
     c.style.cssText = "position:relative;top:0;left:0;cursor:pointer;opacity:0.9;z-index:10000;float:left";
     c2.style.cssText = "position:fixed;bottom:3px;left:206px;margin-bottom:25px;cursor:pointer;opacity:0.9;z-index:10000";
@@ -456,7 +456,7 @@ function Monitor(stats)
             function() { var time = this.stats.time;
                 this.update(time.now - time.last, 200);
             }));
-            
+
     /** If allowed by browser settings, displays memory usage by the simulation. To allow memory
      * tracking in chrome, start with flag --enable-precise-memory-info */
     addPanel(c2,new Panel(stats,0,
@@ -466,7 +466,7 @@ function Monitor(stats)
                 var mem = performance.memory;
                 this.update(mem.usedJSHeapSize / 1048576, mem.jsHeapSizeLimit / 1048576);
             }));
-        
+
     /** Tracks the number of zones occupied by at least one monad as well as the polarity of all
      * zones with every occupied zone weighted equally */
     addPanel(c,new Panel(stats,stats.getDiff(freq),
@@ -480,14 +480,14 @@ function Monitor(stats)
                                 max,
                                 mocc[round(pixel*(mocc.length-1))] );
                 } }));
-    
+
     /** Tracks the total number of quanta as well as their net charge */
     addPanel(c,new Panel(stats,stats.getDiff(freq),
         "Quanta Mass", "#707", "#202", lHeight,lWidth,0,new ColorHex(-1,'00',1),
             function() { var stats = this.stats; var width = this.screen.offset; var round = Math.round;
                 var pixel = 0; var instant = stats.instant; var log = stats.log;
-                var mass = instant.mass + instant.particles - instant.monads; 
-                var mmass = log.mmass; var charge = log.charge; 
+                var mass = instant.mass + instant.particles - instant.monads;
+                var mmass = log.mmass; var charge = log.charge;
                 for (var i = 1; i < width; i++) {
                     pixel = i/width;
                     this.update(mass-mmass[round(pixel*(mmass.length-1))],
@@ -501,8 +501,8 @@ function Monitor(stats)
         "Monad Mass", "#707", "#202", lHeight, lWidth, 0,new ColorHex(-1,'00',1),
             function() { var stats = this.stats; var width = this.screen.offset; var round = Math.round;
                 var pixel = 0; var instant = stats.instant; var log = stats.log;
-                var mass = instant.mass + instant.particles - instant.monads; 
-                var mmass = log.mmass; var mcharge = log.mcharge; 
+                var mass = instant.mass + instant.particles - instant.monads;
+                var mmass = log.mmass; var mcharge = log.mcharge;
                 for (var i = 1; i < width; i++) {
                     pixel = i/width;
                     this.update(mmass[round(pixel*(mmass.length-1))],
@@ -515,7 +515,7 @@ function Monitor(stats)
         "Monad Count", "#f6f", "#212", lHeight, lWidth, 0,new ColorHex(-1,'00',1),
             function() { var stats = this.stats; var width = this.screen.offset; var round = Math.round;
                 var pixel = 0; var maximum = stats.maximum.monads; var log = stats.log;
-                var monads = log.monads; var acharge = log.acharge; 
+                var monads = log.monads; var acharge = log.acharge;
                 for (var i = 1; i < width; i++) {
                     pixel = i/width;
                     this.update(monads[round(pixel*(monads.length-1))],
@@ -601,7 +601,7 @@ function Monitor(stats)
             function() { for (var i = 100; i >= 0; i--) this.update(i,100,i/100);
                 this.update(1,100,-1);
             }));
-                
+
     /** Displays approximation of monads ordered by weight and colored by charge */
     addPanel(c4,new Panel(stats,stats.getDiff(freq),
         "Monad Size Distribution", "#378", "#123", lHeight+50, lWidth+200, 0,new ColorHex(-1,'00',1),
@@ -637,7 +637,7 @@ Monitor.prototype.update = function()
     var stats = this.stats;
     var time = stats.time;
     var check = this.check;
-    
+
     var display = false;
 
     //advance clock and set time
@@ -679,7 +679,7 @@ Monitor.prototype.update = function()
  * one, or if updated entirely in one tick, replaces all actively rendered data with new data.
  * The panel can hold a bit less than width data and display a bit less than height difference between
  * data.
- * 
+ *
  * @param {Statistics} stats        the statistics object, which most panels will use to read data
  * @param {int} freq                how frequent to run:    -1 for running every cycle
  *                                                          0  for running every tick
@@ -704,11 +704,11 @@ function Panel(stats,freq, title, foreground, background, height,width,midline,r
     /** Frequency difference update: -1 for cycle, 0 for constant, Infinity for never, and other numbers for % random cycle */
     this.freq = freq;
     /** Pixel measurement per monitor */
-    this.pixel = Math.round(window.devicePixelRatio || 1);
+    this.pixel = 1;//Math.round(window.devicePixelRatio || 1);
     /** Where to place a line across the data panel */
     this.midline = midline || 0;
     /** The method to update data values on the panel */
-    this.process = method; 
+    this.process = method;
     /** The lowest value passed into the update function */
     this.low = Infinity;
     /** The highest value passed into the update function */
@@ -719,7 +719,7 @@ function Panel(stats,freq, title, foreground, background, height,width,midline,r
     var pixel = this.pixel;
     width *= pixel;
     height *= pixel;
-    
+
     /** Dimensions of the entire panel, including edges, data, and title */
     this.dimensions = {
         /** Width of the panel */
@@ -797,19 +797,19 @@ function Panel(stats,freq, title, foreground, background, height,width,midline,r
 
 /**
  * Performs the calculations for an individual channel (red, green, or blue) based on the already
- * stored positive and negative hex values. Time saving function that simply works with the 
- * ColorHex's stored values to produce either the positive value, negative value, or 
+ * stored positive and negative hex values. Time saving function that simply works with the
+ * ColorHex's stored values to produce either the positive value, negative value, or
  * pre-determined color value for a channel. Note that the channel need not be known.
- * 
+ *
  * @param {int|String} color    either -1 for negative displaying color value
  *                                      1 for positive displaying color value
  *                                      or a 2-character string value containing hex characters
  *                                          for displaying a static color value
- * 
+ *
  * @return {String} a 2-character string of hex values representing the color value to display
  */
 Panel.prototype.hexval = function(color) {
-    var colors = this.colors; var hex = colors.hex; var hexn = colors.hexn; var hexp = colors.hexp; var len = colors.len; 
+    var colors = this.colors; var hex = colors.hex; var hexn = colors.hexn; var hexp = colors.hexp; var len = colors.len;
     switch(color) {
         case -1: return hex[Math.floor(hexn/len)] + hex[hexn%len];
         case 1:  return hex[Math.floor(hexp/len)] + hex[hexp%len];
@@ -821,9 +821,9 @@ Panel.prototype.hexval = function(color) {
  * Updates the calling panel immediately with one new color bar, shifting previous values if
  * necessary. The update must consist of the current value for the next bar, the maximum
  * possible value, and the shade (optional) to paint the new data bar.
- * 
+ *
  * Whenever stats.clear is set to true, the panel's screen, highs, and lows are reset
- * 
+ *
  * @param {int} curr    current value of the next data bar to display--the shows as the bar's height
  * @param {int} maxPossible for the current bar, what should be considered the max value attainable
  * @param {float} [shade] [0,1] value representing the degree of negativity of positivity to display
@@ -901,7 +901,7 @@ Panel.prototype.update = function(curr, maxPossible, shade)
  * input data values (see Panel.hexval). A -1 value will be increased with reduced
  * data values; a 1 value will be increased with increased data values; a 2-hex string will
  * stay constant regardless of data values.
- * 
+ *
  * @param {int|string} r    red value, either -1,1, or a 2-hex value
  * @param {int|string} g    green value, either -1,1, or a 2-hex value
  * @param {int|string} b    blue value, either -1,1, or a 2-hex value

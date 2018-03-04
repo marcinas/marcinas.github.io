@@ -1,8 +1,6 @@
 /**
- * Emergence Simulation
+ * Emergence Simulation System
  * @author Marceline Peters / https://github.com/marcinas
- * January - April 2017
- * University of Washington, Tacoma
  * see readme for additional credits
  */
 
@@ -19,23 +17,23 @@
  * aspects that determine its physical (simulation) traits and interactions as well as its
  * appearance visually to the user and finally back-end information that theoretically affects
  * neither physical aspects nor visual appearance but improves performance.
- * 
+ *
  *      Physical traits
  *          parentIndex     the monad array index of this particle's emission parent, which will
  *                          affect particles physically if reabsorption is enabled (true by default)
  *          quanta: att,rep the number of attractons/repulsons, the basis of interaction rules
- *          quanta: rad     the radius and thus physical boundary of the particle 
+ *          quanta: rad     the radius and thus physical boundary of the particle
  *          quanta: e,c<0   the number of unemitted quanta that must emit and emitted quanta wait time
  *          quanta: cha,imp impact effect information including velocity and a+/r- composition
  *          position        contains a 3d vector of the xyz location of the particle's center
  *          velocity        contains a 3d vector of the xyz direction and speed the particle is going
- * 
+ *
  *      Visual traits
- *          (phys based) quanta: p,n,r, position, & velocity     although manipulable by controls, 
+ *          (phys based) quanta: p,n,r, position, & velocity     although manipulable by controls,
  *                                                               these determine base visual appearance
  *          quanta: m,c>=0  indicates coloring options on particles
  *          color           a color vector that stores the rgb color scheme of the particle
- * 
+ *
  *      Access traits
  *          controls, stats, & zones    are reference-saving addresses
  *          index           indicates a particle's place in monad array; note that because particles
@@ -46,15 +44,15 @@
  *          check & oob     stores partially or fully completed out of bounds or bonding information
  *                          while technically used for physical trait calculation, these are simply
  *                          time saving references to avoid creating new three.js vectors
- *          zone            contains positional information for reducing collision processing to 
- *                          exclude particles well beyond the radius of the colliding particle 
- * 
+ *          zone            contains positional information for reducing collision processing to
+ *                          exclude particles well beyond the radius of the colliding particle
+ *
  * @param {Geometry} geometry       the three.geometry object that will link vertices and colors
  * @param {Controls} controls       the Controls object the simulation uses
  * @param {Statistics} statistics   the Statistics object the simulation uses
  * @param {Zones} zones             the Zones object the simulation uses
  * @param {int[]} maximum           index 0: repulsons remaining
- *                                  index 1: attractons remaining   
+ *                                  index 1: attractons remaining
  *                                  index 2: mass remaining
  */
 function Monad(geometry,controls,statistics,zones,maximum)
@@ -118,9 +116,9 @@ function Monad(geometry,controls,statistics,zones,maximum)
  * Called for every particle in the simulation at restart, uses generation control settings to
  * construct every monad that requires mass. Once this function is done, a monad is guaranteed
  * to have some number of attractons and repulsons and a correct radius.
- * 
+ *
  * @param {int[]} max               index 0: repulsons remaining
- *                                  index 1: attractons remaining   
+ *                                  index 1: attractons remaining
  *                                  index 2: mass remaining
  */
 Monad.prototype.initializeMass = function(max)
@@ -168,7 +166,7 @@ Monad.prototype.initializeMass = function(max)
         if (dif[0] > 0) np[0] -= dif[0];
         if (dif[1] > 0) np[1] -= dif[1];
     }
-    
+
     //actually set attracton and repulson values as well as radius
     this.quanta.attractons = np[1];
     this.quanta.repulsons = np[0];
@@ -246,7 +244,7 @@ Monad.prototype.initializeVelocity = function()
  * weight control is set above 1, the monad will remember multiple impacts and weight each new
  * one accordingly. In addition, for multiple collisions in the same tick, all collisions are
  * averaged out even above the 'memory' limit to ensure no information is disregarded.
- * 
+ *
  * @param {Monad} quanta    the quanta whose impact to absorb
  */
 Monad.prototype.absorb = function(quanta)
@@ -273,9 +271,9 @@ Monad.prototype.absorb = function(quanta)
  * not actually affect the simulation, as the bond isn't a real bond, but just a memory reference
  * for two monads to each other. This function simply adds the monads to each others' bond lists
  * and recolors if appropriate.
- * 
+ *
  * @param {Monad} other the monad to bond with
- * 
+ *
  * @return {boolean} false if no errors occurred (will always be false as of current version)
  */
 Monad.prototype.bond = function(other)
@@ -293,7 +291,7 @@ Monad.prototype.bond = function(other)
         this.quanta.countdown = this.quanta.mountdown = 64;
         other.quanta.countdown = other.quanta.mountdown = 64;
     }
-    
+
     this.stats.instant.bonds++;
 
     return false; //no error
@@ -304,10 +302,10 @@ Monad.prototype.bond = function(other)
  * memory references, the memory references are removed from each monad. Additionally,
  * if the second argument is true, the monads are also merged upon separation (this is used to
  * simulation mass density collapse when two monads overlap too much).
- * 
+ *
  * @param {Monad} other the monad to unbond with
  * @param {boolean} [collapse]    whether to collapse the two monads into one
- * 
+ *
  * @return {boolean} true if monad compromised or merged into, false otherwise
  */
 Monad.prototype.unbond = function(other,collapse)
@@ -330,12 +328,12 @@ Monad.prototype.unbond = function(other,collapse)
 }
 
 /**
- * Freezes two monads in place, resetting their velocities. Supersedes all other forms of 
- * interaction, meaning no bonding, merging, bouncing, etc. will occur. Additionally, 
+ * Freezes two monads in place, resetting their velocities. Supersedes all other forms of
+ * interaction, meaning no bonding, merging, bouncing, etc. will occur. Additionally,
  * emission and virtually all other properties vanish upon freezing.
- * 
+ *
  * @param {Monad} other the monad to freeze with
- * 
+ *
  * @return {boolean} true because freezing should stop all other monad behavior
  */
 Monad.prototype.freeze = function(other)
@@ -366,9 +364,9 @@ Monad.prototype.freeze = function(other)
  * all attractons and repulsons of both monads are combined, the velocity is set as the bounce
  * between both monads, and the new merged monad is placed at the weighted midpoint between the
  * two monads.
- * 
+ *
  * @param {Monad} other the monad to merge into the calling monad
- * 
+ *
  * @return {boolean} true if the calling monad was merged into the parameter;
  *                  false if the parameter monad was merged into the calling
  */
@@ -435,11 +433,11 @@ Monad.prototype.merge = function(other)
  * the more positive particle will add the vector of the more negative particle; the more
  * negative particle subtracts the vector of the more positive one. This means that very slightly,
  * a particle flees from more negative particles and is attracted to more positive ones.
- * 
+ *
  * Of important note, if bonding is enabled in standard fashion (bounce off, pullIn and pushOut on),
  * bounce effectively only controls quanta-monad interactions during emission or collision, with
  * bounce-merging of monad-monads only occurring during mergeRatio collapse.
- * 
+ *
  * @param {Monad} other the monad to bounce off of
  * @param {boolean} [both] whether to bounce both particles; if false, only the first bounces
  */
@@ -459,10 +457,10 @@ Monad.prototype.bounce = function(other, both)
     var m1 = this.check;
     var m2 = other.check;
 
-    //local variables    
+    //local variables
     var s = 1; //sign for flipping and such
 
-    /** Notice that if the two monads aren't in an unescaped parent-child relationship, we know 
+    /** Notice that if the two monads aren't in an unescaped parent-child relationship, we know
      * they are colliding, not performing emission. This scale then acts as an indicator of
      * NEGATIVITY; that is, a negative composition indicates that the opposite's vector should be
      * added, since for collision, adding a colliding particle's velocity will in effect move away
@@ -486,7 +484,7 @@ Monad.prototype.bounce = function(other, both)
         if (t1 > t2) t2 = t1 * weight;
         else t1 = t2 * weight;
     }
-    
+
     //copy velocity vectors
     u2.x = v2.x; u2.y = v2.y; u2.z = v2.z;
     if (both) { u1.x = v1.x; u1.y = v1.y; u1.z = v1.z; }
@@ -589,11 +587,11 @@ Monad.prototype.nullify = function()
  * The function for handling emission. When called, the calling monad will set new properties for
  * and emit the parameter particle and then emit it as a 1-mass quanta from the calling monad's
  * center.
- * 
+ *
  * @param {Monad} other is the monad to be emitted from the calling monad;
  *                      it is assumed only nullified, non-simulated monads will be passed in
  *                      if passed in a non-eligible monad, no emission will occur
- * 
+ *
  * @return {boolean}    true if the emission is compromised in some way and false otherwise
  */
 Monad.prototype.emit = function(other)
@@ -672,7 +670,7 @@ Monad.prototype.emit = function(other)
 /**
  * Sets the calling monad (and if the second argument is true, also the parameter monad)
  * to have a new position exactly halfway in between the center points of both monads.
- * 
+ *
  * @param {Monad} other the monad whose midpoint with the calling monad to calculate
  * @param {boolean} [both] whether to also set the other monad at the midpoint
  */
@@ -706,7 +704,7 @@ Monad.prototype.midpoint = function(other, both)
  * moving it in a straight line along its velocity vector; if no appropriate distance is
  * found, the calling monad's velocity is randomly changed and the process repeated.
  * At the end, the calling monad's velocity is reset to what it was originally.
- * 
+ *
  * @param {Monad} other the monad to space a specific to the calling monad
  * @param {Monad} distance  how far apart to space the calling monad
  */
@@ -748,13 +746,13 @@ Monad.prototype.spaceDistanceTo = function(other, distance)
  * first checking whether the particle's mass exceeds the stability threshold and is at least 2
  * (so it has something to emit). If these requirements have been met, the monad's unstable quanta
  * (any quanta above the stability threshold) are counted and converted to a ratio representing the
- * amount of unstable quanta compared to the maximum amount of unstable quanta (the radiation 
+ * amount of unstable quanta compared to the maximum amount of unstable quanta (the radiation
  * threshold), a real number >= 0, where 1.0 means the monad has reached the radiation threshold
  * (thus always guaranteeing emission if otherwise allowed). Next, a random number in range [0,1)
  * is generated and if it is less than the ratio, the random number is used to determine how many
  * quanta the monad can emit when multiplied by the maximum possible emittable particles.
- * 
- * @return {int} integer >=0 of how many quanta should be emitted from the calling particle this frame 
+ *
+ * @return {int} integer >=0 of how many quanta should be emitted from the calling particle this frame
  */
 Monad.prototype.checkEmission = function()
 {   //memory references
@@ -780,7 +778,7 @@ Monad.prototype.checkEmission = function()
 	ran = Math.random();
     quanta.emit += ran < Math.pow(unstable, 1.0/controls.decayRate) ? Math.ceil(Math.pow(ran,controls.uniformity)*controls.maximum) : 0;//see research for extended explanation
     quanta.emit = Math.min(quanta.emit, this.getMass()-1);
-    
+
     return quanta.emit;//how many quanta to emit
 }
 
@@ -788,9 +786,9 @@ Monad.prototype.checkEmission = function()
  * Checks whether the calling monad is overlapping (their spherical volumes overlap) with the
  * parameter monad and returns false if they are. Used to check whether emitted quanta have
  * left the volume of their parent monad so they won't collide with them pre-escape.
- * 
+ *
  * @param {Monad} other is the (parent) monad to check overlap with
- * 
+ *
  * @return {boolean}    true if calling monad does not overlap with parameter monad
  */
 Monad.prototype.checkEscape = function(other)
@@ -819,16 +817,16 @@ Monad.prototype.checkEscape = function(other)
  * will attempt to pull in or push out the monad to achieve an ideal (surface kiss) distance.
  * Additionally, monads may collapse (merge) into a single monad or may break apart and desist
  * checking distance with the other monad.
- * 
+ *
  * Note that if pullIn and bounce are disabled in controls.dynamic.bonding, bonds function simply
  * to prevent overlap and use energy that would have gone into overlapping to emit quanta instead.
- * 
+ *
  * @param {Monad} other the other monad whose bond with the calling monad to check
- * 
+ *
  * @return {boolean} whether or not the calling monad was compromised (can happen through collapse)
  */
 Monad.prototype.checkBond = function(other)
-{    
+{
     if (other.quanta.radius === 0) return this.unbond(other,false);
     //memory references
     var absMinPos = absMin;
@@ -881,7 +879,7 @@ Monad.prototype.checkBond = function(other)
     //get raw distance and weighted speed
     raw = sqrt(check.x * check.x + check.y * check.y + check.z * check.z);
     speed = (other.getSpeed()*(1-weight) + this.getSpeed()*weight) / raw;
-    if (speed < 1) { 
+    if (speed < 1) {
         check.x *= speed;
         check.y *= speed;
         check.z *= speed;
@@ -900,10 +898,10 @@ Monad.prototype.checkBond = function(other)
 /**
  * Simply checks the bounds of a monad against the given size. If the monad has exceeded the
  * boundary, it will be 'warped' to the opposite of the toroid with a distance in from the
- * boundary equal to how much it extruded from the opposite boundary. If called whenever 
+ * boundary equal to how much it extruded from the opposite boundary. If called whenever
  * position changes, this function ensures no monad will leave the environment proper and will
  * wrap around the toroid edges as expected.
- * 
+ *
  * @param {float} size  the radius or size of the world environment (boundary)
  */
 Monad.prototype.checkBounds = function(size)
@@ -925,10 +923,10 @@ Monad.prototype.checkBounds = function(size)
 /**
  * Checks the velocity of the calling monad against the parameters; if appropriate, will adjust
  * the velocity of the monad and translate excess energy into quanta.
- * 
+ *
  * Note: calling monad.checkVelocity(-1,true) would be a standard check that only changes a monad's
  *       speed if it exceeds the maximum and translates the extra speed into emissions
- * 
+ *
  * @param {float} enforce   if < 0, does nothing; if >=0, will force the particle's speed to be
  *                                                whatever enforce is, up to maximum speed
  * @param {boolean} [emit]    whether to emit excess energy as quanta
@@ -943,7 +941,7 @@ Monad.prototype.checkVelocity = function(enforce,emit)
     //local variables
     var ratio = 0.0;
     var excess = 0.0;
-    
+
     if (enforce >= 0) ms = Math.min(enforce, ms); //check enforcement and set max speed locally to it
 
     if (speed > ms || enforce >= 0) { //speed either exceeds max or particle must be forced to go a certain speed
@@ -973,7 +971,7 @@ Monad.prototype.checkVelocity = function(enforce,emit)
 /**
  * Returns the mass of the calling monad, which is the summation of a monad's composition
  * (its attractons plus its repulsons equals mass).
- * 
+ *
  * @return {int} the mass of the calling monad
  */
 Monad.prototype.getMass = function()
@@ -985,7 +983,7 @@ Monad.prototype.getMass = function()
 /**
  * Returns the speed of the calling monad, which is the square root of the summation of each
  * velocity vector squared.
- * 
+ *
  * @return {float} the speed of the calling monad
  */
 Monad.prototype.getSpeed = function() {
@@ -1002,18 +1000,18 @@ Monad.prototype.getSpeed = function() {
  * (Euclidean) vector and up to 26 adjacent out of bounds vectors. Note that having the first
  * parameter be the world environment radius will have any out of bound vectors placed beyond
  * that boundary.
- * 
+ *
  * Note: calling monad.getOutOfBounds(zones.size,0) with check of 1,1,1 will flip the monad to its
  *          polar opposite position, which may or may not be out of bounds
  *       calling getOutOfBounds with not all check.x/y/z true will only flip the true axis
  *       a limit over 0 will only flip a monad's out of bounds coordinates if the monad's coordinate
  *          on that specific axis is beyond the limit
- * 
+ *
  * @param {float} size  the radius to be considered the boundary (flipped particles will have their
  *                      coordinates set beyond this boundary)
  * @param {float} limit how far a monad can be along a true check.x/y/z axis before it is will get
  *                      flipped to its out of bound vector
- * 
+ *
  * @return {Vector3}    the out of bounds vector, passed for quick access
  */
 Monad.prototype.getOutOfBounds = function(size,limit)
@@ -1026,7 +1024,7 @@ Monad.prototype.getOutOfBounds = function(size,limit)
     var x = pos.x + 0.0;
     var y = pos.y + 0.0;
     var z = pos.z + 0.0;
-    
+
     limit = Math.max(0,limit);
 
     if (check.x) { //flip x if applicable
@@ -1061,20 +1059,20 @@ Monad.prototype.getOutOfBounds = function(size,limit)
  * along that axis as the limit. This function essentially uses several layered loops to cycle through
  * all potential locations within the parameter restrictions--the loops consist of repeated calling
  * of getOutOfBounds to accomplish this. See getOutOfBounds for more details.
- * 
+ *
  * Note: calling monad.getToroidDistanceTo(other, zones.size, 0) will give the true shortest distance
- *          this will be resource intensive as all 8 potential positions for each particle will be 
+ *          this will be resource intensive as all 8 potential positions for each particle will be
  *          checked against each other, meaning the distance checking happens 64 times
  *       calling monad.getToroidDistanceTo(other, zones.size, zones.size - *), where * is the maximum of the
  *          monad's combined radius or zones.zoning will ensure a speedy distance function that only
  *          checks necessary arrangements of particles
- * 
+ *
  * @param {Monad} other is the monad whose distance to check from calling monad
  * @param {float} size  the radius to be considered the boundary (particles will be set beyond this
  *                      boundary if they satisfy the limit condition
  * @param {float} limit how far a monad can be along a true check.x/y/z axis before it will have all
  *                      potential coordinates for that axis checked (default and flipped)
- * 
+ *
  * @return {float} the theoretical shortest distance between the calling and parameter monad
  *                  when accounting for all 64 or fewer relational distances set by parameters
  */
@@ -1100,7 +1098,7 @@ Monad.prototype.getToroidDistanceTo = function(other, size, limit)
     x1 = p1.x === o1.x ? 0 : 1;
     y1 = p1.y === o1.y ? 0 : 1;
     z1 = p1.z === o1.z ? 0 : 1;
-    
+
     //get out of bounds information for parameter monad
     c2.x = c2.y = c2.z = 1;
     other.getOutOfBounds(size,limit);
@@ -1175,7 +1173,7 @@ Monad.prototype.updateColor = function()
     var whiteout = cloud.whiteoutRadius;
     var quanta = this.quanta;
     var radius = quanta.radius;
-    
+
     //local variables
     var range = Math.max(0.0, color - cloud.lightDarkest);
     var r = cloud.reverseSpectrum ? 1 : -1;
@@ -1197,11 +1195,11 @@ Monad.prototype.updateColor = function()
  * Sets the monad's color to the given rgb values. Additionally, uses monad's color vector to pass
  * in distance, lighting, and size information to the shaders. When called, a monad's visual
  * size, distance, brightness, and color will be set for the next tick. There are no color
- * restrictions to this function, so it should be called independently of updateColor for an 
+ * restrictions to this function, so it should be called independently of updateColor for an
  * immediate effect color (e.g. bonding, collision, emission, etc.); otherwise, updateColor
  * should be called for standard red-purple-blue (black-gray-white in color-neutral) color
  * schemes.
- * 
+ *
  * @param {float} r     red value in range [0,1]
  * @param {float} g     green value in range [0,1]
  * @param {float} b     blue value in range [0,1]
@@ -1228,9 +1226,9 @@ Monad.prototype.setColor = function(r,g,b)
 }
 
 /**
- * Randomizes a monad's velocity so each vector is within the given speed. Note that this can 
+ * Randomizes a monad's velocity so each vector is within the given speed. Note that this can
  * exceed controls set max speed.
- * 
+ *
  * @param {float} ms    the max value a velocity vector can be randomized to
  */
 Monad.prototype.randomizeVelocity = function(ms)
@@ -1245,7 +1243,7 @@ Monad.prototype.randomizeVelocity = function(ms)
 /**
  * Changes a monad's velocity to be a normally distributed random vector based off of the
  * parameters.
- * 
+ *
  * @param {Vector3} vector  the vector whose x,y, and z values should be considered 0 stds
  * @param {float} std       the standard deviation from which the x/y/z values will spread from
  */
@@ -1268,7 +1266,7 @@ Monad.prototype.gaussianVelocity = function(vector,std)
 /**
  * Only used for monad console-log research purposes. Will return a string comprising all relevant
  * information about the calling monad.
- * 
+ *
  * @param {Monad} other if given, the string will also contain the distance from the calling monad
  *                      to this parameter monad
  * @return {String}     string containing monad's information

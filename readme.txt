@@ -1,7 +1,8 @@
-Emergence Simulation
-	by Marceline Peters / https://github.com/marcinas
-	January - April 2017
-	University of Washington, Tacoma
+***************************************************************************************************
+Emergence Simulation System
+***************************************************************************************************
+
+	by Marceline Peters
 
 	A particle collider designed to test out and research emergence in multi-agent systems.
 
@@ -11,7 +12,9 @@ Emergence Simulation
 	professors Marceline worked under, Profs. Chris Marriott and George Mobus, various readings both peer-
 	reviewed and informal, and Marceline's own interpretations and emergent discoveries. After graduation,
 	the simulation was further developed to explore the emergent phenomena within the system as the
-	basis for a research paper. The simulation is still undergoing research and development.
+	basis for a research paper. It was also published on github to allow others to experience emergence.
+
+	The simulation is still undergoing research and development.
 
 
 
@@ -19,37 +22,39 @@ Emergence Simulation
 Relevant Courses
 ***************************************************************************************************
 
-	Emergence System Simulation Design
-		with Professor Chris Marriott
+Emergence System Simulation Design
+	with Professor Chris Marriott
 
-		Course objectives include designing an elementary particle simulator to study the possibility of
-		emergence of electromagnetism or other elementary forces. The simulation will involve a
-		three-dimensional environment, simple agents capable of emitting positive and negative particles
-		or energy and capable of moving according to forces of attraction and repulsion. The goal of the
-		project is to find evidence of the development of unplanned traits reflecting some real world physical
-		phenomena such as subatomic orbits, gravity, strong or weak force, quantum structure, or other
-		notable behavior arising from simple rules. The end products of the class will be a working
-		simulation and a research report on the design and results of the simulation.
+	Course objectives include designing an elementary particle simulator to study the possibility
+	of emergence of electromagnetism or other elementary forces. The simulation will involve a
+	three-dimensional environment, simple agents capable of emitting positive and negative particles
+	or energy and capable of moving according to forces of attraction and repulsion. The goal of the
+	project is to find evidence of the development of unplanned traits reflecting some real world
+	physical phenomena such as subatomic orbits, gravity, strong or weak force, quantum structure,
+	or other notable behavior arising from simple rules. The end products of the class will be a
+	working simulation and a research report on the design and results of the simulation.
 
-		Course resources include study in HTML 5 game engine graphics, JavaScript development and design practices,
-		WebGL and Three.js graphics processing, and aspects of physics simulation including three-torus and vectors.
+	Course resources include study in HTML 5 game engine graphics, JavaScript development and
+	design practices, WebGL and Three.js graphics processing, and aspects of physics simulation
+	including three-torus and vectors.
 
-	Computational Theory of Emergence
-		with Professor George Mobus
+Computational Theory of Emergence
+	with Professor George Mobus
 
-		Course objectives are the study of prepatory and theory work that will consist of varied, in-depth readings
-		regarding the principles of the emergence of complexity in cosmological, biological, and computational
-		evolution. These readings will focus on understanding the fundamentals of how simple rules can
-		lead towards complex behaviors and the development of systems. Primarily, these concepts will
-		be explored through what can be implemented using modern programming techniques and languages,
-		with the goal of finding foundational principles that allow a simple system to develop
-		unplanned traits. This work has technological merits on its own, and it can also be
-		complementary to a directed research course dealing with computational simulations of emergence.
+	Course objectives are the study of prepatory and theory work that will consist of varied,
+	in-depth readings regarding the principles of the emergence of complexity in cosmological,
+	biological, and computational evolution. These readings will focus on understanding the
+	fundamentals of how simple rules can lead towards complex behaviors and the development
+	of systems. Primarily, these concepts will be explored through what can be implemented using
+	modern programming techniques and languages, with the goal of finding foundational principles
+	that allow a simple system to develop unplanned traits. This work has technological merits on
+	its own, and it can also be complementary to a directed research course dealing with
+	computational simulations of emergence.
 
-		Course resources include readings from The Emergence of Everything (2002) by H. J. Morowitz,
-		Emergence: From Chaos to Order (1998) by J. H. Holland, and selected readings and papers on
-		emergence and computing principles, including excerpts from several peer-reviewed journals and
-		Principles of System Science (2014) by G. E. Mobus (course instructor).
+	Course resources include readings from The Emergence of Everything (2002) by H. J. Morowitz,
+	Emergence: From Chaos to Order (1998) by J. H. Holland, and selected readings and papers on
+	emergence and computing principles, including excerpts from several peer-reviewed journals and
+	Principles of System Science (2014) by G. E. Mobus (course instructor).
 
 
 
@@ -57,115 +62,112 @@ Relevant Courses
 Other Credits/Contributions
 ***************************************************************************************************
 
-	alpha 0.1-0.4	
+alpha 0.1-0.4
+	@author Marceline Peters / https://github.com/marcinas
+	@author Chris Marriott (for Zombies game, based on Bad Aliens)
+	@author Seth Ladd (for Bad Aliens game engine and his Google IO talk in 2011)
+
+beta 0.1-2.9
+	@author Marceline Peters / https://github.com/marcinas
+	consists of the coding, some visuals and physics simulator from alpha 0.1-0.4
+		ported into a complete redesign based on protoplanets
+		https://threejs.org/examples/webgl_gpgpu_protoplanet.html
+	@author mrdoob
+		https://github.com/mrdoob/three.js/blob/master/examples/webgl_gpgpu_protoplanet.html
+
+gamma 0.0-current
+	@author Marceline Peters / https://github.com/marcinas
+
+	images/
+		all images made using GIMP
 		@author Marceline Peters / https://github.com/marcinas
-		@author Chris Marriott (for Zombies game, based on Bad Aliens)
-		@author Seth Ladd (for Bad Aliens game engine and his Google IO talk in 2011)
+		all dataurl files made from images and converted using dataurlmaker
+		@author Marceline Peters / https://github.com/marcinas (original images)
+		@author Sveinbjorn Thordarson http://dataurl.net/ (conversion to Data URL)
 
-
-	beta 0.1-2.9
-		@author Marceline Peters / https://github.com/marcinas
-		consists of the coding, some visuals and physics simulator from alpha 0.1-0.4 ported into
-		a complete redesign based on protoplanets https://threejs.org/examples/webgl_gpgpu_protoplanet.html
-		@author mrdoob https://github.com/mrdoob/three.js/blob/master/examples/webgl_gpgpu_protoplanet.html
-
-
-	gamma 0.0-current
-		@author Marceline Peters / https://github.com/marcinas
-
-		images/
-			all images made using GIMP
+	js/
+		dat.gui.min.js
+			@author Data Arts Team, Google Creative Lab
+		Detector.js
+			@author alteredq / http://alteredqualia.com
+			@author mr.doob / http://mrdoob.com
+		GPUComputationRenderer.js
+			@author yomboprime / https://github.com/yomboprime
+			@author zz85 / https://github.com/zz85
+		OrbitControls.js
+			@author qiao / https://github.com/qiao
+			@author mrdoob / http://mrdoob.com
+			@author alteredq / http://alteredqualia.com
+			@author WestLangley / http://github.com/WestLangley
+			@author erich666 / http://erichaines.com
+		three.js
+			@author Abe Pazos / https://hamoid.com
+			@author abelnation / http://github.com/abelnation
+			@author alteredq / http://alteredqualia.com
+			@author arose / http://github.com/arose
+			@author astrodud / http://astrodud.isgreat.org
+			@author atix / arthursilber.de
+			@author Ben Houston / http://clara.io
+			@author benaadams / https://twitter.com/ben_a_adams
+			@author bhouston / http://clara.io
+			@author clockworkgeek / https://github.com/clockworkgeek
+			@author D1plo1d / http://github.com/D1plo1d
+			@author David Sarno / http://lighthaus.us
+			@author egraether / http://egraether.com
+			@author elephantatwork / www.elephantatwork.ch
+			@author fordacious / fordacious.github.io
+			@author greggman / http://games.greggman.com
+			@author Hectate / http://www.github.com/Hectate
+			@author hughes
+			@author ikerr / http://verold.com
+			@author jonobr1 / http://jonobr1.com
+			@author jordi_ros / http://plattsoft.com
+			@author Kaleb Murphy
+			@author kile / http://kile.stravaganza.org/
+			@author Marius Kintel / https://github.com/kintel
+			@author Matt DesLauriers / @mattdesl
+			@author michael guerrero / http://realitymeltdown.com
+			@author mikael emtinger / http://gomo.se/
+			@author miningold / https://github.com/miningold
+			@author mrdoob / http://mrdoob.com/
+			@author Mugen87 / http://github.com/Mugen87
+			@author Nikos M. / https://github.com/foo123/
+			@author oosmoxiecode / https://github.com/oosmoxiecode
+			@author philogb / http://blog.thejit.org/
+			@author Reece Aaron Lecrivain / http://reecenotes.com/
+			@author Sean Griffin / http://twitter.com/sgrif
+			@author sroucheray / http://sroucheray.org/
+			@author stephomi / http://stephaneginier.com/
+			@author supereggbert / http://www.paulbrunt.co.uk/
+			@author szimek / https://github.com/szimek/
+			@author takahirox / http://github.com/takahirox
+			@author timknip / http://www.floorplanner.com/
+			@author timothypratley / https://github.com/timothypratley
+			@author tschw
+			@author WestLangley / http://github.com/WestLangley
+			@author zz85 / http://github.com/zz85
+	simulation/
+		basic.js
 			@author Marceline Peters / https://github.com/marcinas
-			all dataurl files made from images and converted using dataurlmaker
-			@author Marceline Peters / https://github.com/marcinas (original images)
-			@author Sveinbjorn Thordarson http://dataurl.net/ (conversion to Data URL)
-
-		js/
-			dat.gui.min.js
-				@author Data Arts Team, Google Creative Lab
-			Detector.js
-				@author alteredq / http://alteredqualia.com
-				@author mr.doob / http://mrdoob.com
-			GPUComputationRenderer.js
-				@author yomboprime / https://github.com/yomboprime
-				@author zz85 / https://github.com/zz85
-			OrbitControls.js
-				@author qiao / https://github.com/qiao
-				@author mrdoob / http://mrdoob.com
-				@author alteredq / http://alteredqualia.com
-				@author WestLangley / http://github.com/WestLangley
-				@author erich666 / http://erichaines.com
-			three.js
-				@author Abe Pazos / https://hamoid.com
-				@author abelnation / http://github.com/abelnation
-				@author alteredq / http://alteredqualia.com
-				@author arose / http://github.com/arose
-				@author astrodud / http://astrodud.isgreat.org
-				@author atix / arthursilber.de
-				@author Ben Houston / http://clara.io
-				@author benaadams / https://twitter.com/ben_a_adams
-				@author bhouston / http://clara.io
-				@author clockworkgeek / https://github.com/clockworkgeek
-				@author D1plo1d / http://github.com/D1plo1d
-				@author David Sarno / http://lighthaus.us
-				@author egraether / http://egraether.com
-				@author elephantatwork / www.elephantatwork.ch
-				@author fordacious / fordacious.github.io
-				@author greggman / http://games.greggman.com
-				@author Hectate / http://www.github.com/Hectate
-				@author hughes
-				@author ikerr / http://verold.com
-				@author jonobr1 / http://jonobr1.com
-				@author jordi_ros / http://plattsoft.com
-				@author Kaleb Murphy
-				@author kile / http://kile.stravaganza.org/
-				@author Marius Kintel / https://github.com/kintel
-				@author Matt DesLauriers / @mattdesl
-				@author michael guerrero / http://realitymeltdown.com
-				@author mikael emtinger / http://gomo.se/
-				@author miningold / https://github.com/miningold
-				@author mrdoob / http://mrdoob.com/
-				@author Mugen87 / http://github.com/Mugen87
-				@author Nikos M. / https://github.com/foo123/
-				@author oosmoxiecode / https://github.com/oosmoxiecode
-				@author philogb / http://blog.thejit.org/
-				@author Reece Aaron Lecrivain / http://reecenotes.com/
-				@author Sean Griffin / http://twitter.com/sgrif
-				@author sroucheray / http://sroucheray.org/
-				@author stephomi / http://stephaneginier.com/
-				@author supereggbert / http://www.paulbrunt.co.uk/
-				@author szimek / https://github.com/szimek/
-				@author takahirox / http://github.com/takahirox
-				@author timknip / http://www.floorplanner.com/
-				@author timothypratley / https://github.com/timothypratley
-				@author tschw
-				@author WestLangley / http://github.com/WestLangley
-				@author zz85 / http://github.com/zz85
-
-		simulation/
-			basic.js
-				@author Marceline Peters / https://github.com/marcinas
-			controls.js
-				@author Marceline Peters / https://github.com/marcinas
-			emergence.js
-				@author Marceline Peters / https://github.com/marcinas
-			monad.js
-				@author Marceline Peters / https://github.com/marcinas
-			statistics.js
-				@author Marceline Peters / https://github.com/marcinas (rewriting, adding custom metrics, changing function and appearance)
-				@author mrdoob / http://mrdoob.com/ (original, stats.min.js)
-			zones.js
-				@author Marceline Peters / https://github.com/marcinas
-
+		controls.js
+			@author Marceline Peters / https://github.com/marcinas
+		emergence.js
+			@author Marceline Peters / https://github.com/marcinas
+		monad.js
+			@author Marceline Peters / https://github.com/marcinas
+		statistics.js
+			@author Marceline Peters / https://github.com/marcinas
+				(rewriting, adding custom metrics, changing function and appearance)
+			@author mrdoob / http://mrdoob.com/ (original, stats.min.js)
+		zones.js
+			@author Marceline Peters / https://github.com/marcinas
 		emergence_simulation.html
-			@author Marceline Peters / https://github.com/marcinas
-			@author mrdoob / http://mrdoob.com/ (for original layout and design on protoplanets)
+		@author Marceline Peters / https://github.com/marcinas
+		@author mrdoob / http://mrdoob.com/ (for original layout and design on protoplanets)
 
-
-
-***************************************************************************************************
+****************************************************************************************************
 How to Do This Simulation Better
-***************************************************************************************************
+****************************************************************************************************
 
 	The bottleneck, algorithmic complexity speaking, as far as I know, is position/velocity
 	changes, internal data updates, and collision detection. Ideally, all of the data on the

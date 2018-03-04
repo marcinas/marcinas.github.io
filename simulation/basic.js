@@ -1,8 +1,6 @@
 /**
- * Emergence Simulation
+ * Emergence Simulation System
  * @author Marceline Peters / https://github.com/marcinas
- * January - April 2017
- * University of Washington, Tacoma
  * see readme for additional credits
  */
 
@@ -15,20 +13,22 @@
 /**************************************************************/
 
 /** stores non-camera keys that user can use to interact with simulation */
-var keys = { SEMICOLON: 59, QUOTE: 39 };
+var keys = { PERIOD: 46, COMMA: 44, SEMICOLON: 59, QUOTE: 39, LEFT_BRACE: 91, RIGHT_BRACE: 93, BACKSLASH: 92 };
+var actions = { PAUSE: keys.LEFT_BRACE, STEP: keys.RIGHT_BRACE, SCREENSHOT: keys.BACKSLASH }
 
 /**
  * Reloads the simulation after setting the hash, which adds numbers to the url so that some
  * simulation wide reload settings can be carried over into a clean simulation.
- * 
+ *
  * @return {boolean} false to show there was no error
  */
 function reloadSimulation()
 {   //memory reference
     var constant = emergence.controls.constant;
 
+    //sets hash information for reload; decoded with getHashInformation()
     location.hash = constant.maximum + "#" +
-                    (constant.modes) +
+                    (constant.modes | "0") +
                     (constant.debugInit ? "1" : "0");
     location.reload(); //F5
     return false;
@@ -40,7 +40,7 @@ function reloadSimulation()
  * able to be displayed (which is used in all setup information for the simulation), whether
  * to show debug information during startup, and whether to put the simulation through a
  * stress test (see controls for more info, but should be about 30fps).
- * 
+ *
  * @return {int[]}  a list containing extracted hash values
  */
 function getHashInformation()
@@ -61,9 +61,9 @@ function getHashInformation()
 /**
  * For the given camera, returns the camera constant, which is the height of the window
  * divided by the relationship of the field of view to the zoom level.
- * 
+ *
  * @param {PerspectiveCamera} camera    the camera to check the constant of
- * 
+ *
  * @return {float} a real number representing the camera constant at the calling time of function
  */
 function getCameraConstant(camera)
@@ -86,9 +86,9 @@ function setupWindow()
 /**
  * Activates when the user requests window closure to confirm their choice using the default
  * browser confirmation dialogue.
- * 
+ *
  * @param {Event} [event] is the window closing event.
- * 
+ *
  * @return {boolean} whether the user selected to close the window or not
  */
 function onWindowClose(event)
@@ -109,17 +109,18 @@ function onWindowResize()
     //local variables
     var height = camera.customWindowRender ? camera.height : window.innerHeight;
     var width = camera.customWindowRender ? camera.width : window.innerWidth;
-    
+
     if (camera.allowWindowRender) {
         emergence.camera.aspect = width / height;
         emergence.camera.updateProjectionMatrix();
         emergence.renderer.setSize(width, height);
+    //    emergence.renderer.setPixelRatio(window.devicePixelRatio);
     }
 }
 
 /**
  * Detects what key has been pressed by the user and performs the appropriate action.
- * 
+ *
  * @param {Event} event    the key press event
  */
 function onKeyPress(event)
@@ -128,13 +129,17 @@ function onKeyPress(event)
 
     switch (event.keyCode) {
 
-        case keys.SEMICOLON: //pause simulation
+        case actions.PAUSE: //pause simulation
             emergence.controls.animate = !emergence.controls.animate;
             break;
 
-        case keys.QUOTE: //step 1 tick forward in simulation
+        case actions.STEP: //step 1 tick forward in simulation
             emergence.controls.animate = false;
             emergence.controls.step = true;
+            break;
+
+        case actions.SCREENSHOT:
+            takeScreenshot();
             break;
 
         default: break;
@@ -143,10 +148,10 @@ function onKeyPress(event)
 
 
 /**
- * Detects clicking and double clicking; when the user double-clicks anywhere on the simulation 
+ * Detects clicking and double clicking; when the user double-clicks anywhere on the simulation
  * screen, a ray is cast from the user camera origin towards and through the area in space
  * represented by the clicked pixel. Raycasting collision is used (via intersectObject(...)) to
- * gather intersected particles--the closest one whose physical boundary overlaps is the 
+ * gather intersected particles--the closest one whose physical boundary overlaps is the
  * clicked particle. (Physical, not visual boundary, as the user can change the visual appearance
  * of monad boundary irrespective of its physical boundary, which is an equation to
  * find the radius from deriving the monad's mass/density relation to spherical volume.)
@@ -160,7 +165,7 @@ function onKeyPress(event)
 function onMouseDown(event)
 {   //no pre-loading memory references as this is a non-constantly evoked function
     if (DEBUG) debug(["system","interaction"],["mouse:",event.which]);
-    
+
     if (event.which === 1 && !emergence.click) { //check for left button click counted as single-click
         emergence.click = Math.ceil(emergence.stats.time.fps/3); //user has 1/3 second to click a second time and have it count as a double-click
         return;
@@ -203,7 +208,7 @@ function onMouseDown(event)
         monad = monads[clicked];
         monad.setColor(color.r,color.g,color.b); //change color of monad to wireframe
         monad.quanta.countdown = 16;
-        if (visual.display.clickBox) { //create position box 
+        if (visual.display.clickBox) { //create position box
             emergence.initializeCube(monad.quanta.radius*2,
                                      monad.position,
                                      clicked);
@@ -258,21 +263,53 @@ function onMouseDown(event)
  */
 function takeScreenshot()
 {
-    var dom = emergence.renderer.domElement;
-    var x = dom.toDataURL("image/png");
-    var link = document.createElement("a");
-    link.download = "name" + new Date().getTime() + ".png";
-    link.href = x;
-    document.body.appendChild(link);
-    link.click();
-    document.body.removeChild(link);
+    /* Method One */
+    ////var dom = statistics.monitor.domElement;
+    // var dom = emergence.renderer.domElement;
+    // var x = dom.toDataURL("image/png");
+    // var link = document.createElement("a"); //leave as a! otherwise it won't download
+    // link.download = "name" + new Date().getTime() + ".png";
+    // link.href = x;
+    // document.body.appendChild(link);
+    // link.click();
+    // document.body.removeChild(link);
+
+    /* Method Two */
+    // var gl = emergence.renderer.context;
+    // console.log(emergence.renderer);
+    // var width = gl.drawingBufferWidth;
+    // var height = gl.drawingBufferHeight;
+    // var buffer = new ArrayBuffer(width * height * 4);
+    // var pixels = new Uint8Array(buffer);
+    // gl.readPixels(0, 0, width, height, gl.RGBA, gl.UNSIGNED_BYTE, pixels);
+    //
+    // var blob = new Blob([buffer], {type: 'data:image'});
+    // console.log(blob);
+    // var image = new Image();
+    // image.src = URL.createObjectURL(blob);
+    // var url = image.src.replace(/^data:image\/[^;]/, 'data:application/octet-stream');
+    // console.log(url);
+    // statistics.animate = false;
+    // location.href = image.src;
+    // window.open(url);
+    //
+    // location.href = image;
+    //
+    // console.log(gl);
+    // var i = [];
+    // for (var ii = 0; ii < 256; ii++) i[ii] = 0;
+    // for (var p = 0; p < pixels.length; p++) {
+    // 	i[pixels[p]]++;
+    // }
+    // console.log(pixels);
+    // console.log(i);
 }
 
 /**
  * Ultimate debug function that takes in two arguments that can be strings or lists of strings--
  * the first must detail where in emergence.controls.debug the permission is to be found; the
  * second is the arg(s) that are to be printed should the appropriate permission be true.
- * 
+ *
  * @param {string|string[]} allow     the permission parameters to check before printing
  * @param {string|Object|Object[]} args      what to print if the parameters allow it
  */
@@ -321,7 +358,7 @@ function debug(allow,args)
 
 /**
  * Returns true or false with uniform randomness.
- * 
+ *
  * @return {boolean} true or false
  */
 function randBool()
@@ -331,10 +368,10 @@ function randBool()
 
 /**
  * Returns the minimum value of two numbers after both's absolute (non-negative) value is compared.
- * 
- * @param {float} a the first number to compare 
+ *
+ * @param {float} a the first number to compare
  * @param {float} b the second number to compare
- * 
+ *
  * @return {float} returns a or b (non absolute value), whichever's absolute value is smallest
  */
 function absMin(a,b)
@@ -345,21 +382,21 @@ function absMin(a,b)
 /**
  * Returns real number representing log base b of a. Currently no error checking for silly values
  * to save commands.
- * 
+ *
  * @param {float} a      the argument of the logarithm
  * @param {float} b      the base of the logarithm
- * 
+ *
  * @return {float} log base b of a
  */
 function log(b, a)
 {
-    return Math.log(a) / 
+    return Math.log(a) /
             Math.log(b);
 }
 
 /**
  * Gives the radius of a perfect sphere given the sphere's mass and density.
- * 
+ *
  * With default density (0.238), here are the approximate quanta within one monad for a given radius:
  * Mass     Radius(a bit >)
  * 1        1
@@ -375,10 +412,10 @@ function log(b, a)
  * 125000   50
  * 420000   75
  * 1000000  100
- * 
+ *
  * @param {float} mass      f>=0    number representing the mass of the sphere
  * @param {float} density   f>0     density of the sphere
- * 
+ *
  * @return {float} the radius of a sphere as determined by mass and density
  */
 function radiusSphere(mass, density)
@@ -395,10 +432,10 @@ function radiusSphere(mass, density)
 
 /**
  * Simple version of the gauss function. Returns a random gaussian value for a standard bell curve.
- * 
+ *
  * @param {float} med   the median value, 0 standard deviations
  * @param {float} std   the standard deviation value for 1 standard deviation (68.2%)
- * 
+ *
  * @return {float}      a gaussian-distributed random number restricted by given parameters
  */
 function randGaussSimple(med,std)
@@ -413,10 +450,10 @@ function randGaussSimple(med,std)
  * with the following arguments: (-Infinity,Infinity,0,1,1,0); this will result in ~68.2% of values
  * in the range [-1,1], ~95.4% of values in the range [-2,2] and ~99.7% of values in the range [-3,3].
  * The additional parameters of exp and inv allow narrowing or widening exponentially the range of
- * values (or drasticness of the drop-off of the bell curve) and splitting of the bell curve into 
+ * values (or drasticness of the drop-off of the bell curve) and splitting of the bell curve into
  * two separate ranges respectively.
- * 
- * @param {float} min   the minimum value allowable--numbers below this range will be set to min 
+ *
+ * @param {float} min   the minimum value allowable--numbers below this range will be set to min
  * @param {float} med   the median value, 0 standard deviations
  * @param {float} max   the maximum value allowable--numbers above this range will be set to max
  * @param {float} std   the standard deviation value for 1 standard deviation (68.2%)
@@ -424,7 +461,7 @@ function randGaussSimple(med,std)
  * @param {float} [inv]   [0,1] range value of uniform chance to invert random value
  *                      (makes a right-tailed and left-tailed curve at high values)
  * @param {int}   [sign]  if defined, the standard deviation will have the same +/- as sign
- * 
+ *
  * @return {float}      a gaussian-distributed random number restricted by given parameters
  */
 function randGauss(min, med, max, std, exp, inv, sign)
@@ -438,14 +475,14 @@ function randGauss(min, med, max, std, exp, inv, sign)
                         2.0 * Math.PI * (1 - random())
                     ),
                 exp); // formula: Box–Muller transform
-    
+
     var val = med       +      std * (random() < inv ? 1/ran : ran ); // median plus (1 standard deviation times random number)
     return Math.min(max, Math.max(min, val)); //don't exceed max or min
 }
 
 /**
  * Returns the current date in "UNIX_epoch (yyyy/mm/dd hh:mm.ms)" format.
- * 
+ *
  * @return {string} of the date in milliseconds since 1970/1/1 and regular Julian form.
  */
 function date()
@@ -456,4 +493,3 @@ function date()
                 date.getHours() + ":" + date.getMinutes() + "." + date.getMilliseconds() +
             ")";
 }
-
