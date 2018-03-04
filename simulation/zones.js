@@ -1,8 +1,6 @@
 /**
- * Emergence Simulation
+ * Emergence Simulation System
  * @author Marceline Peters / https://github.com/marcinas
- * January - April 2017
- * University of Washington, Tacoma
  * see readme for additional credits
  */
 
@@ -10,7 +8,7 @@
 
 /**************************************************************/
 /**************************************************************/
-/*******************        ZONES       	*******************/
+/********************        ZONES       	*********************/
 /**************************************************************/
 /**************************************************************/
 
@@ -18,11 +16,11 @@
  * The purpose of the zones object is to be an intermediary between emergence-monad and monad-monad
  * relationships for anything involving positioning or collision detection. Zones splits the
  * cubic environment of the simulation into an n x n x n grid of zones, each zone having identical
- * s x s x s size and perfectly positioned against adjacent zones. These zones allow individual 
+ * s x s x s size and perfectly positioned against adjacent zones. These zones allow individual
  * particles to have not only their simulation-wide coordinates, but also be a member of only one
  * zone at a time. Zone membership allow particles to perform collision or distance checks on
  * a much reduced arena size and still have 100% detected particle interactions.
- * 
+ *
  * @param {Statistics} statistics   a statistics object that the zones will use for data
  * @param {Controls} controls       the controls object
  * @param {Monad[]} monads     monads array from Simulation
@@ -67,7 +65,7 @@ function Zones(statistics,controls,monads)
     this.stats.maximum.distance = this.maxdist;
     var inilen = length <= 50 ? 32 : (length <= 100 ? 16 : 8); //how big to preset zones arrays (helps with memory management)
 
-    //set up the zones 
+    //set up the zones
     for (var x = 0; x < length; x++) {
         this.array.push([]);
         for (var y = 0; y < length; y++) {
@@ -83,7 +81,7 @@ function Zones(statistics,controls,monads)
 /**
  * Checks the parameter particle's position to see whether it has changed zones. If it has, change
  * the particle's zone and update the zone itself as well.
- * 
+ *
  * @param {Monad} monad the monad whose position to check
  */
 Zones.prototype.updateZone = function(monad)
@@ -98,7 +96,7 @@ Zones.prototype.updateZone = function(monad)
     var x = floor((pos.x + size) / zoning);
     var y = floor((pos.y + size) / zoning);
     var z = floor((pos.z + size) / zoning);
-    
+
     if (x != zone.x || y != zone.y || z != zone.z) {//at least one coordinate different
         if (zone.i > 0) //particle had previous zone
             this.clearFromZone(monad);
@@ -112,7 +110,7 @@ Zones.prototype.updateZone = function(monad)
 /**
  * Performs operations to clear a particle from a zone on the Zones side of the equation.
  * Sets particle's and zone's indexes accordingly.
- * 
+ *
  * @param {Monad} monad the monad whose zone to clear
  */
 Zones.prototype.clearFromZone = function(monad)
@@ -134,7 +132,7 @@ Zones.prototype.clearFromZone = function(monad)
 /**
  * Performs operations to add a particle to a zone on the Zones side of the equation.
  * Sets particle's and zone's indexes accordingly.
- * 
+ *
  * @param {Monad} monad the monad whose zone to clear
  */
 Zones.prototype.addToZone = function(monad)
@@ -149,10 +147,10 @@ Zones.prototype.addToZone = function(monad)
 /**
  * Performs operations to add an index to the freeslots array. Additionally, removes parameter
  * monad's index from timeslots if it is in there (meaning it is an emitted quanta)
- * 
+ *
  * @param {Monad} monad the monad whose slot to add to freeslots
  */
-Zones.prototype.addFreeSlot = function(monad) 
+Zones.prototype.addFreeSlot = function(monad)
 {   //memory reference
     var timeslots = this.timeslots;
 
@@ -163,13 +161,13 @@ Zones.prototype.addFreeSlot = function(monad)
 }
 
 /**
- * Returns the index of the next available particle (one that isn't being rendered). 
+ * Returns the index of the next available particle (one that isn't being rendered).
  * As of now, assumes that next free slot will be filled with a quanta (mass = 1) because there is
  * no way in the simulation that a monad will be spontaneously created (as opposed to two quanta
  * merging).
- * 
+ *
  * @param {float} buffer  the amount of particles that shouldn't be displaced
- * 
+ *
  * @return {int} the slot (index) of the next free particle or -1 if all particles allowable are being rendered
  */
 Zones.prototype.nextFreeSlot = function(buffer)
@@ -243,11 +241,11 @@ Zones.prototype.nextFreeSlot = function(buffer)
  * the ones responsible for checking collision on smaller particles (because no particle searches
  * beyond its own radius doubled--e.g., searches as far as assuming the biggest particle it will
  * collide with is another of identical size).
- * 
- * @param {Monad} monad the particle whose collision to check 
- * 
+ *
+ * @param {Monad} monad the particle whose collision to check
+ *
  * @return {boolean} true if particle was absorbed or compromised in collision,
- *                    false otherwise (collisions where parameter monad stays intact)                                                   
+ *                    false otherwise (collisions where parameter monad stays intact)
  */
 Zones.prototype.checkCollisions = function(monad)
 {   //memory references
@@ -256,7 +254,7 @@ Zones.prototype.checkCollisions = function(monad)
     var zoning = this.zoning;
     var length = this.length;
     var crossover = this.crossover;
-    var pos = monad.position;    
+    var pos = monad.position;
     var radius = monad.quanta.radius;
     var zone = monad.zone;
     var x = zone.x, y = zone.y, z = zone.z;
@@ -353,7 +351,7 @@ Zones.prototype.checkCollisions = function(monad)
  * appropriate function for the parameter monad so it may collide with the other monad.
  * Note that the out-of-bounds argument (oob) is expected for any zone-wrap-arounds or
  * toroid geometry distance to work.
- * 
+ *
  * @param {Monad} monad to check for collision with
  * @param {int[]} zone  the actual int array x-y-z zone to check (from this.array)
  *                          this means zone[0] is the actual length to check
@@ -363,10 +361,10 @@ Zones.prototype.checkCollisions = function(monad)
  * @param {float} oob   how far out of bounds to check for particle overlap toroid wrapping
  *                      if negative, the oob is considered flagged,  which means both Euclidean
  *                      and toroidal distance must be checked
- * 
+ *
  * @return {boolean} true if particle was absorbed or compromised in collision,
  *                    false otherwise (there were no collisions or there was
- *                                      a collision where parameter monad stays intact)   
+ *                                      a collision where parameter monad stays intact)
  */
 Zones.prototype.collideInZone = function(monad, zone, oob)
 {   //memory references
@@ -433,7 +431,7 @@ Zones.prototype.collideInZone = function(monad, zone, oob)
                 }
             }
         } else cont++; //non-flagged oob to check, so don't check regular distance independently for coloring
-        
+
         //check Toroidal distance
         if (oob) {
             if (monad.getToroidDistanceTo(other,size,size - oob) > radi) cont++; //closest toroid distance overlaps

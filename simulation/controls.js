@@ -1,8 +1,6 @@
 /**
- * Emergence Simulation
+ * Emergence Simulation System
  * @author Marceline Peters / https://github.com/marcinas
- * January - April 2017
- * University of Washington, Tacoma
  * see readme for additional credits
  */
 
@@ -32,16 +30,16 @@ function Controls(simulation)
      * hash[0] is an integer that is default maximum particles
      * hash[1] is an int bool (0 or 1) whether to display startup debug
      * hash[2] is an integer representing mode (see below)*/
-	this.hash = getHashInformation();
+		this.hash = getHashInformation();
 
     //local constants based on hash
-    var TOTAL = this.hash[0] || Math.pow(2,17);
+    var TOTAL = this.hash[0] || Math.pow(2, MOBILE ? 13 : 16);
     var STARTUP = DEBUG = this.hash[1] || false;
     var STRESS = (this.hash[2] || 0) === 1;
     var TEST = (this.hash[2] || 0) === 2;
     var CLUMP = (this.hash[2] || 0) === 3;
     if (this.hash.length <= 1) CLUMP = true;//only on first load will clump be set if no options selected
-    
+
     //local constants derived from hash or simply starting defaults
     var MAXIMUM = STRESS ? Math.pow(2, 16) : TOTAL;
     var RADIUS = Math.ceil(Math.pow(log(2, MAXIMUM), 3) / 3);//new formula for 0.7: but also update based on data.txt = Math.ceil(Math.pow(MAXIMUM/2 * log(2,MAXIMUM/2) * 75, 1/3));
@@ -75,7 +73,7 @@ function Controls(simulation)
             /** 65536 single mass quanta field with quantaCollide enabled */
             stress: 1,
             /** Tracked experiment small amount multi-monad mode */
-            research: 2,       
+            research: 2,
             /** Large field with several medium size particles */
             clump: 3
         },
@@ -121,7 +119,7 @@ function Controls(simulation)
             /** Overall, on average, how neutral the simulation is (where -1 or 1 is 100% negative or positive respectively) */
             neutrality: 0.0,
             /** The least polar a monad can be randomly */
-            polarityMin: 0.0, 
+            polarityMin: 0.0,
             /** The most polar a monad can be randomly */
             polarityMax: TEST ? 0.0 : 1.0,
             /** Initial velocity of all particles */
@@ -241,9 +239,9 @@ function Controls(simulation)
         /** Settings affecting the camera dimensions */
         camera: {
             /** Allows rendering resizing on window change (may lead to artifacts) */
-            allowWindowRender: false,
+            allowWindowRender: true,
             /** Forces the rendering to the below dimensions (may lead to artifacts) */
-            customWindowRender: true,
+            customWindowRender: false,
             /** Artificial render height for custom render */
             height: HEIGHT,
             /** Artificial render width for custom render */
@@ -362,6 +360,10 @@ Controls.prototype.setup = function()
     var MAX_VEL = emission.velocity;
     var MAX_RENDER_DISTANCE = this.RENDER;
     var message = { text: "   if slow, lower Maximum Mass" };
+		var folderPrefix = "";
+		var folderSuffix = "";
+		var subfolderPrefix = ">>> ";
+		var subfolderDivider = " > ";
 
     //button functions
     var buttonRefresh = { refreshSimulation: function () {
@@ -399,7 +401,7 @@ Controls.prototype.setup = function()
 
     //gui setup
     /* CONSTANTS */
-    var controlsConstant = this.gui.addFolder('Constants (must reload to take effect)');
+    var controlsConstant = this.gui.addFolder(folderPrefix + 'Constants (must reload to take effect)' + folderSuffix);
     controlsConstant.add(buttonReload, 'reloadSimulation').name('Reload Simulation');
     controlsConstant.add(constant, "debugInit", constant.debugInit).name('Debug Reload');
     controlsConstant.add(constant, "modes", constant.modes).name('Mode');
@@ -410,13 +412,13 @@ Controls.prototype.setup = function()
     controlsConstant.open();
 
     /* GENERATION */
-    var controlsGeneration = this.gui.addFolder('Generation (must restart to take effect)');
+    var controlsGeneration = this.gui.addFolder(folderPrefix + 'Generation (must restart to take effect)' + folderSuffix);
     controlsGeneration.add(buttonRestart, 'restartSimulation').name('Restart Simulation');
     controlsGeneration.add(generation, "runtime", 0, Number.MAX_SAFE_INTEGER, 1);
     controlsGeneration.add(generation, "particles", 1.0, MAX_PARTICLES, 1.0);
     controlsGeneration.add(generation, "enforceMass", generation.enforceMass);
     controlsGeneration.add(generation, "enforceNeutral", generation.enforceNeutral);
-    var controlsGenMass = controlsGeneration.addFolder('Generation > Mass');
+    var controlsGenMass = controlsGeneration.addFolder(subfolderPrefix + 'Generation' + subfolderDivider + 'Mass');
     controlsGenMass.add(mass, "minimum", 1, MAX_PARTICLES, 1);
     controlsGenMass.add(mass, "median", 1, MAX_PARTICLES, 1);
     controlsGenMass.add(mass, "maximum", 1, MAX_PARTICLES, 1);
@@ -425,25 +427,25 @@ Controls.prototype.setup = function()
     controlsGenMass.add(mass, "inversion", 0, Math.round(log(2,MAX_PARTICLES)), 1);
     controlsGenMass.add(mass, "balance", 0.0, 1.0, MIN_DIFF);
     controlsGenMass.add(mass, "randomize", 0.0, 1.0, MIN_DIFF);
-    var controlsGenMonad = controlsGeneration.addFolder('Generation > Monads');
+    var controlsGenMonad = controlsGeneration.addFolder(subfolderPrefix + 'Generation' + subfolderDivider + 'Monads');
     controlsGenMonad.add(monad, "neutrality", -1.0, 1.0, MIN_DIFF);
     controlsGenMonad.add(monad, "polarityMin", 0.0, 1.0, MIN_DIFF);
     controlsGenMonad.add(monad, "polarityMax", 0.0, 1.0, MIN_DIFF);
     controlsGenMonad.add(monad, "velocity", 0.0, MAX_VEL, MIN_DIFF);
     controlsGenMonad.add(monad, "randomizeVelocity", 0.0, 1.0, MIN_DIFF);
-    var controlsGenWorld = controlsGeneration.addFolder('Generation > World');
+    var controlsGenWorld = controlsGeneration.addFolder(subfolderPrefix + 'Generation' + subfolderDivider + 'World');
     controlsGenWorld.add(world, "spread", 1, MAX_RENDER_DISTANCE, 1);
     this.listen.push(controlsGenWorld);
     this.listen.push(controlsGenWorld.add(world, "radius", 2, MAX_RENDER_DISTANCE, 1));
     this.listen.push(controlsGenWorld.add(world, "zoning", 1, MAX_RENDER_DISTANCE, 1));
 
     /* DYNAMIC PARAMETERS */
-    var controlsDynamic = this.gui.addFolder('Dynamic (effects happen in real time)');
+    var controlsDynamic = this.gui.addFolder(folderPrefix + 'Dynamic (effects happen in real time)' + folderSuffix);
     controlsDynamic.add(buttonClear, "clearQuanta").name("Clear Quanta");
     controlsDynamic.add(dynamic, "density", MIN_DIFF, 10.0, MIN_DIFF).onChange(SIM_m_c_c);
     controlsDynamic.add(dynamic, "maxSpeed", MIN_DIFF, 10.0, MIN_DIFF).onChange(SIM_m_c_c);
     controlsDynamic.add(dynamic, "quantaWeight", MIN_DIFF, MAX_PARTICLES, MIN_DIFF).onChange(SIM_m_c_c);
-    var controlsDynToggle = controlsDynamic.addFolder('Dynamic > Toggle');
+    var controlsDynToggle = controlsDynamic.addFolder(subfolderPrefix + 'Dynamic' + subfolderDivider + 'Toggle');
     controlsDynToggle.add(toggle, "attractRepulse", toggle.attractRepulse).onChange(SIM_corrupt);
     controlsDynToggle.add(toggle, "emission", toggle.emission).onChange(SIM_corrupt);
     controlsDynToggle.add(toggle, "impactEmit", toggle.impactEmit).onChange(SIM_corrupt);
@@ -456,7 +458,7 @@ Controls.prototype.setup = function()
     controlsDynToggle.add(toggle, "quantaAbsorption", toggle.quantaAbsorption).onChange(SIM_corrupt);
     controlsDynToggle.add(toggle, "quantaCollide", toggle.quantaCollide).onChange(SIM_corrupt);
     controlsDynToggle.add(toggle, "quantaRandCollide", toggle.quantaRandCollide).onChange(SIM_corrupt);
-    var controlsDynEmit = controlsDynamic.addFolder('Dynamic > Emission');
+    var controlsDynEmit = controlsDynamic.addFolder(subfolderPrefix + 'Dynamic' + subfolderDivider + 'Emission');
     controlsDynEmit.add(emission, "stability", 1, MAX_PARTICLES, 1).onChange(SIM_corrupt);
     controlsDynEmit.add(emission, "radiation", 1, MAX_PARTICLES, 1).onChange(SIM_corrupt);
     controlsDynEmit.add(emission, "maximum", 1, MAX_PARTICLES, 1).onChange(SIM_corrupt);
@@ -466,7 +468,7 @@ Controls.prototype.setup = function()
     controlsDynEmit.add(emission, "prevRange", 0.0, 10.0, MIN_DIFF).onChange(SIM_corrupt);
     controlsDynEmit.add(emission, "prevWeight", 1, MAX_PARTICLES, 1).onChange(SIM_corrupt);
     controlsDynEmit.add(emission, "velocity", 0.0, MAX_VEL, MIN_DIFF).onChange(SIM_corrupt);
-    var controlsDynBond = controlsDynamic.addFolder('Dynamic > Bonding');
+    var controlsDynBond = controlsDynamic.addFolder(subfolderPrefix + 'Dynamic' + subfolderDivider + 'Bonding');
     controlsDynBond.add(bonding, "bounce", bonding.bounce).onChange(SIM_corrupt);
     controlsDynBond.add(bonding, "pullIn", bonding.pullIn).onChange(SIM_corrupt);
     controlsDynBond.add(bonding, "pushOut", bonding.pushOut).onChange(SIM_corrupt);
@@ -475,24 +477,24 @@ Controls.prototype.setup = function()
     controlsDynBond.add(bonding, "mergeRatio", 0.0, 1.0, MIN_DIFF).onChange(SIM_corrupt);
 
     /* VISUAL PARAMETERS */
-    var controlsVisual = this.gui.addFolder('Visualization (appearance-only effects)');
+    var controlsVisual = this.gui.addFolder(folderPrefix + 'Visualization (appearance-only effects)' + folderSuffix);
     controlsVisual.add(buttonRefresh, 'refreshSimulation').name('Refresh Simulation');
     controlsVisual.addColor(visual, "backgroundColor").onChange(SIM_colors);
     controlsVisual.addColor(visual, "wireframeColor").onChange(SIM_colors);
     controlsVisual.add(visual, "colorNeutral", visual.colorNeutral).onChange(SIM_colorNeutral);
-    var controlsVisDisplay = controlsVisual.addFolder('Visualization > Display');
+    var controlsVisDisplay = controlsVisual.addFolder(subfolderPrefix + 'Visualization' + subfolderDivider + 'Display');
     controlsVisDisplay.add(display, "bonding", display.bonding).onChange(SIM_monads);
     controlsVisDisplay.add(display, "collision", display.collision).onChange(SIM_monads);
     controlsVisDisplay.add(display, "radiation", display.radiation).onChange(SIM_monads);
     controlsVisDisplay.add(display, "clickInfo", display.clickInfo);
     controlsVisDisplay.add(display, "clickBox", display.clickBox);
     controlsVisDisplay.add(display, "clickRay", display.clickRay);
-    var controlsVisCamera = controlsVisual.addFolder('Visualization > Camera');
+    var controlsVisCamera = controlsVisual.addFolder(subfolderPrefix + 'Visualization' + subfolderDivider + 'Camera');
     controlsVisCamera.add(camera, "allowWindowRender", camera.allowWindowRender).onChange(SIM_cam_m);
     controlsVisCamera.add(camera, "customWindowRender", camera.customWindowRender).onChange(SIM_cam_m);
     controlsVisCamera.add(camera, "height", camera.height).onChange(SIM_cam_m);
     controlsVisCamera.add(camera, "width", camera.width).onChange(SIM_cam_m);
-    var controlsVisMonad = controlsVisual.addFolder('Visualization > Cloud');
+    var controlsVisMonad = controlsVisual.addFolder(subfolderPrefix + 'Visualization' + subfolderDivider + 'Cloud');
     controlsVisMonad.add(cloud, "reverseSpectrum", cloud.reverseSpectrum).onChange(SIM_monads);
     controlsVisMonad.add(cloud, "whiteoutRadius", 1, 100, MIN_DIFF).onChange(SIM_monads);
     controlsVisMonad.add(cloud, "distanceFactor", 1, this.MAX_FACTOR, 1).onChange(SIM_monads);
@@ -502,16 +504,16 @@ Controls.prototype.setup = function()
     controlsVisMonad.add(cloud, "sizeExp", MIN_DIFF, 2.0, MIN_DIFF).onChange(SIM_monads);
 
     /* DEBUG PARAMETERS */
-    var controlsDebug = this.gui.addFolder('Debug (press F12 to see output)');
+    var controlsDebug = this.gui.addFolder(folderPrefix + 'Debug (press F12 to see output)' + folderSuffix);
     controlsDebug.add(debug, "allow", debug.allow).onChange(SIM_controls);
-    var controlsDebParticle = controlsDebug.addFolder('Debug > Particle');
+    var controlsDebParticle = controlsDebug.addFolder(subfolderPrefix + 'Debug' + subfolderDivider + 'Particle');
     controlsDebParticle.add(particle, "index", -1, MAX_PARTICLES, 1).onChange(SIM_controls);
     controlsDebParticle.add(particle, "color", particle.color);
     controlsDebParticle.add(particle, "quanta", particle.quanta);
     controlsDebParticle.add(particle, "position", particle.position);
-    controlsDebParticle.add(particle, "velocity", particle.velocity);  
+    controlsDebParticle.add(particle, "velocity", particle.velocity);
     controlsDebParticle.add(particle, "zone", particle.zone);
-    var controlsDebSystem = controlsDebug.addFolder('Debug > System');
+    var controlsDebSystem = controlsDebug.addFolder(subfolderPrefix + 'Debug' + subfolderDivider + 'System');
     controlsDebSystem.add(system, "initialization", system.initialization);
     controlsDebSystem.add(system, "monads", system.scene);
     controlsDebSystem.add(system, "reabsorption", system.reabsorption);
@@ -526,12 +528,12 @@ Controls.prototype.setup = function()
 
 /**
  * When called, will check the user or system defined parameters for world sizing generation.
- * It will force the radius of the world to be divisible perfectly by a power of 10; then, zoning 
+ * It will force the radius of the world to be divisible perfectly by a power of 10; then, zoning
  * will be altered until it is a perfect factor of world diameter (radius * 2), first by decreasing
  * the zoning size, and if no numbers perfectly divide into world diameter, the zoning is
  * incremented until the worst case scenario where zoning = radius, which would result in
  * just 8 zones for particles to segregate into. Controls are then adjusted to reflect these
- * acceptable values.                                   
+ * acceptable values.
  */
 Controls.prototype.checkDimensions = function()
 {
@@ -546,7 +548,7 @@ Controls.prototype.checkDimensions = function()
 
     this.generation.world.radius = size;//size is the radius of the world
     this.generation.world.zoning = unit;//unit is the zoning unit
-    
+
     //as of this writing, dat.gui's listen function is broken for manipulable values (esp. sliders)
     //the below code rectifies that by popping off the incorrect radius and zoning and then
     //popping back on the sliders with correct,acceptable defaults
@@ -594,7 +596,7 @@ Controls.prototype.update = function()
 /**************************************************************/
 /**************************************************************/
 
-// basic functions that access the emergence simulation.
+// basic functions that access the Emergence Simulation System.
 // perhaps its my understanding of dat.gui, but I can't get
 // prototype functions to get called .onChange(...)
 // so these are workarounds
@@ -602,13 +604,13 @@ Controls.prototype.update = function()
 /** Refreshes the display gui controllers (controls). */
 function refreshGui(gui) { for (var c in gui.__controllers) gui.__controllers[c].updateDisplay(); };
 
-/** Restarts the emergence simulation. */
+/** Restarts the Emergence Simulation System. */
 function SIM_restart() { emergence.restartSimulation(); };
 
 /** Recalculates the monads and resets the scene. */
 function SIM_scene() { SIM_monads(); emergence.resetScene(); };
 
-/** Updates the controls of the simulation. */ 
+/** Updates the controls of the simulation. */
 function SIM_controls() { emergence.controls.update(); };
 
 /** Marcelines the simulation as altered and changes the simulation id. */

@@ -1,0 +1,15 @@
+{
+  "short_name": "Emergence Simulation System",
+  "name": "Emergence Simulation System",
+  "description": "A particle collider designed to test out and research emergence in multi-agent systems.",
+  "start_url": "index.html",
+  "display": "standalone",
+  "orientation": "landscape",
+  "icons": [
+    {
+      "src": "images/favicon.ico",
+      "sizes": "16x16 24x24 32x32 48x48 64x64 96x96 128x128 192x192 256x256",
+      "type": "ico"
+    }
+  ]
+}

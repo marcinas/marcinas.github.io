@@ -1,5 +1,5 @@
 ***************************************************************************************************
-Emergence Simulation credits/contributions
+Emergence Simulation System credits/contributions
 ***************************************************************************************************
 
 	all code not listed below as by another author is Copyright 2017, Marceline Peters, all rights reserved

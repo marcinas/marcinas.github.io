@@ -1,16 +1,14 @@
 /**
- * Emergence Simulation
+ * Emergence Simulation System
  * @author Marceline Peters / https://github.com/marcinas
- * January - April 2017
- * University of Washington, Tacoma
  * see readme for additional credits
  */
- 
+
 
 
 /**************************************************************/
 /**************************************************************/
-/*******************		EMERGENCE		*******************/
+/************************		EMERGENCE		***********************/
 /**************************************************************/
 /**************************************************************/
 
@@ -25,11 +23,11 @@
  * only create and pass a statistics object to emergence for it to work. The initialization function
  * specifically automatically appends to html document, declares rendering objects (see ../js), and
  * sets up the control scheme. Setup() must still be called for the emergence object to begin.
- * 
+ *
  * Each simulation has an id for tracking--the first 8 digits represent a randomized number that
  * increments by 1 every simulation reset, and the second 8 digits which start a counter at 0
  * and increment every time the simulation is altered dynamically during runtime.
- * 
+ *
  * @param {Statistics} statistics    a fully instantiated statistics.js object for use of reporting data
  */
 function Emergence(statistics)
@@ -75,7 +73,7 @@ function Emergence(statistics)
     this.initial = 0;
     /** Whether the simulation should worry about particle rendering limits from emission (see controls.js) */
     this.enforce = false;
-    
+
     /** The range of ids possible (actually just the first half) */
     this.idRange = 100000000;//arbitrary--for spacing with current font settings
     /** The id itself, a 16-digit number comprised of the randomized simulation id (the first 8 digits) and
@@ -95,7 +93,7 @@ Emergence.prototype.startup = function()
     this.MAX = this.controls.constant.maximum;//must be set after controls are instantiated
     this.monads = new Array(this.MAX).fill(null);//must also be set after controls; null because monads must be instantiated each with different parameters
 
-    debug("always","Emergence Simulation System\n\tversion " + VERSION.CURRENT_VERSION + " at " + date() + "\nby Marceline Peters (https://github.com/marcinas)");
+    debug("always","Emergence Simulation System System\n\tversion " + VERSION.CURRENT_VERSION + " at " + date() + "\nby Marceline Peters (https://github.com/marcinas)");
     debug("startup",['THREE.WebGLRenderer 84',emergence.controls.hash,emergence]);//only try if debugInit set
 
     var debugging = this.controls.debug;
@@ -103,7 +101,7 @@ Emergence.prototype.startup = function()
 
     this.restartSimulation();//start 'er up
     this.initializeVisuals();
-    
+
     if (debugging.startup) {//set to false afterwards so same startup scripts don't repeat
         debugging.startup = false;
         debugging.system.initialization = false;
@@ -126,8 +124,9 @@ Emergence.prototype.startup = function()
  */
 Emergence.prototype.initializeVisuals = function()
 {   //memory references
-    var height = this.controls.visual.camera.height;
-    var width = this.controls.visual.camera.width;
+    camera = this.controls.visual.camera;
+    var height = camera.customWindowRender ? camera.height : window.innerHeight;
+    var width = camera.customWindowRender ? camera.width : window.innerWidth;
 
     //camera setup
     this.camera = new THREE.PerspectiveCamera(60, width / height, 1, Math.pow(this.controls.RENDER,2));
@@ -157,7 +156,7 @@ Emergence.prototype.initializeVisuals = function()
  * from the other one) and put them in one cube geometry within a wireframe array index. This means
  * the wireframe array will have one cube for every 4 indices. Colors will follow the
  * controls-selected wireframe colors and change accordingly.
- * 
+ *
  * The below number schemes indicate how the coords/corner for loop array decides on corners
  *      (see descriptions in code itself for more details)
  * 0 -> 1 3 2           0	-	-	-       4	-	-	+
@@ -189,7 +188,7 @@ Emergence.prototype.initializeCube = function(radius, vector, index)
     for (var s = 0; s < 4; s++) { //for each of the four corners
         cube = new THREE.Geometry();
         cube.angle = [];
-        
+
         for (var p = 0; p < 4; p++) { //for each vertex (center, and then three at right angles along axis)
             //formula: [corner of cube (s) + (0 for p = 1,2; 1 for p = 0,3)] mod 4 for first coords index,
             //          and (0 for p = 0,1; 1 for p = 2,3) for second coords index
@@ -280,7 +279,7 @@ Emergence.prototype.initializeParticles = function()
             }
         } else this.zones.addFreeSlot(monad); //monad was generated with no mass, so it is not going to be rendered
     }
-    
+
     if (currentParticles === 1)//for a single particle, place in center of toroid
         monads[0].position.x = monads[0].position.y = monads[0].position.z = 0.0;
 
@@ -329,7 +328,7 @@ Emergence.prototype.updateWireframe = function()
     var box = null;
     var pos = null;
     var monad = null;
-    
+
     for (var w = 4; w < wireframe.length; w++) {//starts at 4 so first (giant) wireframe is not continually unnecessarily updated
         monad = monads[focus[w]];
         pos = monad.position;
@@ -346,7 +345,7 @@ Emergence.prototype.updateWireframe = function()
 
 /**
  * The most important function of the simulation--this function runs through, for every particle,
- * all of its updates within a single frame/tick. The process first sets various values based on 
+ * all of its updates within a single frame/tick. The process first sets various values based on
  * controls; then, the system checks whether animation (simultaneous with physics calculations)
  * is allowed. If allowed, some statistical data is primed and the loop over all monads begin.
  * Any monads that are non-existent (have blanked out stats, most indicative by a radius of 0)
@@ -354,48 +353,48 @@ Emergence.prototype.updateWireframe = function()
  * the current tick will then have their properties pre-processing analyzed^ and stored in data.
  * Then, the monad will check several things, each of which may preclude and prevent processing of
  * the next thing should certain conditions arise.
- * 
+ *
  * First, monads analyze their countdown variables. For most monads, this is related only to
- * coloring in a way to communicate information to the user about the state of the monad but 
+ * coloring in a way to communicate information to the user about the state of the monad but
  * that has no effect on the simulation proper; however, some countdowns do affect system
  * physics--this is where newly emitted quanta will disable collision on themselves until they
  * have escaped their parent's volume to ensure radiation is consistent with boundary conditions.
- * 
+ *
  * Next, if applicable, collision is checked for the monad. The zones object handles collision
  * detection is a time-efficient manner. All collisions (considered where the monad has an
  * overlapping boundary with any other monad) will be processed according to the controls set.
  * If a monad is absorbed into a larger monad during collision or otherwise compromised, that
  * monad processes no more information this tick. This is the stage where bonding, bouncing,
  * merging, among other behaviors, will occur initially.
- * 
+ *
  * Next, if applicable, the system checks the monad for emission based on various controlled and
  * random factors. If a monad is determined to be unstable enough, it will then emit some random
  * number of particles from itself, ejecting their mass into new quanta. This part will continue
  * until the monad has emitted all of its required radiation for that tick.
- * 
+ *
  * Next, if applicable, the monad checks all particles it is bonded with (or simply adjacent to).
  * Depending on the controls, the monad may do as little as simply monitor its neighbors to as much
  * as attempt to adjust their position, either to prevent volume overlap or to maintain distances,
  * to facilitate interactions, or to merge or break with its neighbors^^. Adjustments to other
  * monads may be penalized with quanta that are to be emitted next tick.
- * 
+ *
  * The last state that affects the monad physically is its position being updated by simply
  * added its velocity (which may have been changed by the above checks) to its position. The
  * monad is considered done with its own self-check this loop.
- * 
+ *
  * Finally, debug information is processed for the monad. After all monads are processed,
  * wireframes are processed simply to properly encase their monads (no physical effects--
  * simply visual) and some debugging and statistical information is gathered. The system
  * passes control onto statistics to analyze the data collected during this loop. The system
  * emergence loop update is considered finished and terminates. It is up to an external
  * source to call the update loop whenever an update is desired.
- * 
+ *
  *      ^   because as each particle is processed it can change other particle's properties (such as
  *          through collision or other methods) and because particles do not store two sets of info
  *          (no before and after for position, composition, etc.) to save memory and speed up the
  *          loop, there is no true way except for the first tick to analyze all of the particles
  *          in the same quantum step without interference.
- * 
+ *
  *      ^^  By default settings, the bonding stage simply prevents volume overlap between monads and
  *          disassociates monads from checking monads that are too far to worry about boundary overlap.
  *          In this way, the collision check acts to identify neighbors and the bonding check simply
@@ -496,7 +495,7 @@ Emergence.prototype.update = function()
                             continue;
 
                     if (emission && (displacement || zones.free > buffer)) //displacement is enabled and there is room for more new particles
-                        if (monad.checkEmission()) 
+                        if (monad.checkEmission())
                             while (quanta.emit) //there are quanta remaining that should be emitted
                                 if (monad.emit(monads[zones.nextFreeSlot(buffer)])) //returns true if passed an unemittable particle
                                     break;
@@ -508,7 +507,7 @@ Emergence.prototype.update = function()
                 }
             }
 
-            //countdowns and positional update based on velocity            
+            //countdowns and positional update based on velocity
             if (quanta.mountdown < 0) quanta.mountdown = 0;//check for negative quanta.m
             if (quanta.countdown === 0 && monad.getMass() > 1) quanta.countdown++;
             monad.updatePosition();
@@ -538,7 +537,7 @@ Emergence.prototype.update = function()
     time.first = false;
 
     if (DEBUG) debug(["system","monads"],[this.monads]);
-} 
+}
 
 
 
