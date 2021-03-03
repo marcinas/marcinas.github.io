@@ -213,14 +213,20 @@ function Controls(simulation)
         }
     };
 
+    /** Accessibility (no physics effects) controls */
+    this.access = {
+      /** If enabled, switches to a three color mode (black, white, purple) instead of standard red-blue-white */
+      colorNeutral: false,
+      /** Toggles all colors to be inverted */
+      invertColors: false
+    };
+
     /** Visual (no physics effects) controls */
     this.visual = {
         /** Background color of the simulation environment */
-        backgroundColor: "#000000",
+        backgroundColor: "#FFFFFF",
         /** Color of all wireframes (including world boundaries) of simulation */
-        wireframeColor: "#ffffff",
-        /** If enabled, switches to a three color mode (black, white, purple) instead of standard red-blue-black */
-        colorNeutral: false,
+        wireframeColor: "#000000",
         /** Visuals affecting instant reactions */
         display: {
             /** Whether to temporarily color monads white upon bonding (and brown upon unbonding) */
@@ -234,7 +240,7 @@ function Controls(simulation)
             /** Whether to display a box wireframe around any clicked particle */
             clickBox: true,
             /** Whether to display a ray from camera origin to clicked pixel */
-            clickRay: false,
+            clickRay: false
         },
         /** Settings affecting the camera dimensions */
         camera: {
@@ -338,6 +344,7 @@ function Controls(simulation)
  */
 Controls.prototype.setup = function()
 {   //memory references
+    var simulation = this.simulation;
     var constant = this.constant;
     var generation = this.generation;
     var mass = generation.mass;
@@ -347,7 +354,7 @@ Controls.prototype.setup = function()
     var toggle = dynamic.toggle;
     var emission = dynamic.emission;
     var bonding = dynamic.bonding;
-    var simulation = this.simulation;
+    var access = this.access;
     var visual = this.visual;
     var display = visual.display;
     var camera = visual.camera;
@@ -355,11 +362,16 @@ Controls.prototype.setup = function()
     var debug = this.debug;
     var particle = debug.particle;
     var system = debug.system;
+
+    //universal settings
     var MAX_PARTICLES = constant.maximum;
     var MIN_DIFF = constant.granularity;
     var MAX_VEL = emission.velocity;
     var MAX_RENDER_DISTANCE = this.RENDER;
-    var message = { text: "   if slow, lower Maximum Mass" };
+
+    //preset values
+    var messageConstant = { text: "   if slow, lower Maximum Mass" };
+    var messageDebug = { text: "        press F12 to see output" };
 		var folderPrefix = "";
 		var folderSuffix = "";
 		var subfolderPrefix = ">>> ";
@@ -408,8 +420,7 @@ Controls.prototype.setup = function()
     controlsConstant.add(constant, "granularity", 0.000001,1.0,0.000001).name('Controls Granularity');
     controlsConstant.add(constant, "power", 0.0, 20.0, 1.0).onChange(SIM_controls).name('Maximum Mass: 2 ^');
     controlsConstant.add(constant, 'maximum').listen().name('Maximum Particles');
-    controlsConstant.add(message, 'text').name("Runtime FPS Notice");
-    controlsConstant.open();
+    controlsConstant.add(messageConstant, 'text').name("Runtime FPS Notice");
 
     /* GENERATION */
     var controlsGeneration = this.gui.addFolder(folderPrefix + 'Generation (must restart to take effect)' + folderSuffix);
@@ -476,12 +487,16 @@ Controls.prototype.setup = function()
     controlsDynBond.add(bonding, "breakRatio", 1.0, 2.0, MIN_DIFF).onChange(SIM_corrupt);
     controlsDynBond.add(bonding, "mergeRatio", 0.0, 1.0, MIN_DIFF).onChange(SIM_corrupt);
 
+    /* ACCESS PARAMETERS */
+    var controlsAccess = this.gui.addFolder(folderPrefix + 'Accessibility' + folderSuffix);
+    controlsAccess.add(access, "colorNeutral", access.colorNeutral).onChange(SIM_colorNeutral);
+    controlsAccess.add(access, "invertColors", access.invertColors).onChange(SIM_invertColors);
+
     /* VISUAL PARAMETERS */
-    var controlsVisual = this.gui.addFolder(folderPrefix + 'Visualization (appearance-only effects)' + folderSuffix);
+    var controlsVisual = this.gui.addFolder(folderPrefix + 'Visualization' + folderSuffix);
     controlsVisual.add(buttonRefresh, 'refreshSimulation').name('Refresh Simulation');
     controlsVisual.addColor(visual, "backgroundColor").onChange(SIM_colors);
     controlsVisual.addColor(visual, "wireframeColor").onChange(SIM_colors);
-    controlsVisual.add(visual, "colorNeutral", visual.colorNeutral).onChange(SIM_colorNeutral);
     var controlsVisDisplay = controlsVisual.addFolder(subfolderPrefix + 'Visualization' + subfolderDivider + 'Display');
     controlsVisDisplay.add(display, "bonding", display.bonding).onChange(SIM_monads);
     controlsVisDisplay.add(display, "collision", display.collision).onChange(SIM_monads);
@@ -504,7 +519,8 @@ Controls.prototype.setup = function()
     controlsVisMonad.add(cloud, "sizeExp", MIN_DIFF, 2.0, MIN_DIFF).onChange(SIM_monads);
 
     /* DEBUG PARAMETERS */
-    var controlsDebug = this.gui.addFolder(folderPrefix + 'Debug (press F12 to see output)' + folderSuffix);
+    var controlsDebug = this.gui.addFolder(folderPrefix + 'Debug' + folderSuffix);
+    controlsDebug.add(messageDebug, 'text').name("Debugging Notice");
     controlsDebug.add(debug, "allow", debug.allow).onChange(SIM_controls);
     var controlsDebParticle = controlsDebug.addFolder(subfolderPrefix + 'Debug' + subfolderDivider + 'Particle');
     controlsDebParticle.add(particle, "index", -1, MAX_PARTICLES, 1).onChange(SIM_controls);
@@ -613,7 +629,7 @@ function SIM_scene() { SIM_monads(); emergence.resetScene(); };
 /** Updates the controls of the simulation. */
 function SIM_controls() { emergence.controls.update(); };
 
-/** Marcelines the simulation as altered and changes the simulation id. */
+/** Marks the simulation as altered and changes the simulation id. */
 function SIM_corrupt() { emergence.stats.purity = false; emergence.id++; };
 
 /** Recolors the background and wireframes. */
@@ -637,3 +653,7 @@ function SIM_cam_m() { var camera = emergence.controls.visual.camera;
 /** Changes simulation to black and white with purple background. */
 function SIM_colorNeutral() { emergence.colorNeutral();
                               SIM_controls(); SIM_colors(); SIM_monads();  };
+
+/** Inverts the colors of the background and wireframe. */
+function SIM_invertColors() { emergence.invertColors();
+                              SIM_controls(); SIM_colors();  };

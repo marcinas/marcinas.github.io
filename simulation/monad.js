@@ -1162,7 +1162,7 @@ Monad.prototype.updateRadius = function()
  */
 Monad.prototype.updateColor = function()
 {
-    if (this.controls.visual.colorNeutral) {
+    if (this.controls.access.colorNeutral) {
         this.setColor(0,0,0);
         return;
     }
@@ -1209,11 +1209,12 @@ Monad.prototype.setColor = function(r,g,b)
     var min = Math.min;
     var floor = Math.floor;
     var color = this.color;
+    var access = this.controls.access;
     var visual = this.controls.visual;
     var cloud = visual.cloud;
     var max = this.controls.MAX_BRIGHTNESS;
 
-    if (visual.colorNeutral) //set all colors to positive--thus the whiter, the more attractons
+    if (access.colorNeutral) //set all colors to positive--thus the lighter, the more attractons
         r = g = b = this.quanta.attractons / this.getMass();
 
     /** Colors comprise a float and integer value combined: the float value represents the classic
