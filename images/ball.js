@@ -1,5 +1,5 @@
 // ball image custom made in GIMP and converted using http://dataurl.net/#dataurlmaker
-// original image Marceline Peters
+// original image Mark Peters
 
 var ball = new Image();
 

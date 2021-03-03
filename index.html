@@ -4,7 +4,7 @@
 	original: protoplanets - https://threejs.org/examples/webgl_gpgpu_protoplanet.html
  	by mr.doob / http://mrdoob.com/
 	modifications by Marceline Peters
-	
+
 	see readme for additional credits
 -->
 
@@ -88,7 +88,8 @@
 					"Version Release 1.01: changed initial maximum mass load, removed snapshot taking, added runtime fps information",
 					"Version Release 1.02: mergeRatio changed to 0 for all initial loads",
 					"Version Release 1.03: added warning for mobile users, tweaked visuals and initial median mass",
-					"Version Release 1.04: shifted some pixel lengths in controls, fixed zoom and resizing issues on some computers, cosmetic changes for controls, and new links"
+					"Version Release 1.04: shifted some pixel lengths in controls, fixed zoom and resizing issues on some computers, cosmetic changes for controls, and new links",
+					"Version Release 1.05: cleaned up controls, moved accessibility options their own folder, added inversion, inverted default background/wireframe colors"
 				],
 
 				CURRENT_VERSION: "",
@@ -410,7 +411,7 @@
 		<!--effects only initial load (once particles load, resets elsewhere)-->
 		<style>
 			body {
-				background-color: #000000; /* only affects initial load */
+				background-color: #FFFFFF; /* only affects initial load */
 				margin: 0px;
 				overflow: hidden;
 				font-family: Monospace;
@@ -420,10 +421,10 @@
 				cursor: pointer;
 			}
 
-			a { color:#ffff00; }
+			a { color:#0000ff; }
 
 			#info {
-				color: #ffffff;
+				color: #555555;
 				position: absolute;
 				top: 10px;
 				width: 100%;

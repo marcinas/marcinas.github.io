@@ -137,7 +137,7 @@ Emergence.prototype.initializeVisuals = function()
     //renderer setup
     this.renderer = new THREE.WebGLRenderer();
     this.renderer.sortObjects = false;
-    this.renderer.setClearColor(0x000000);
+    this.renderer.setClearColor(0xFFFFFF);
     this.renderer.setPixelRatio(window.devicePixelRatio);
     this.renderer.setSize(width,height);
     this.container.appendChild(this.renderer.domElement);
@@ -650,12 +650,32 @@ Emergence.prototype.recolorEnvironment = function()
 Emergence.prototype.colorNeutral = function()
 {   //memory references
     var visual = this.controls.visual;
-    var bw = visual.colorNeutral;
+    var access = this.controls.access;
+    var bw = access.colorNeutral;
 
     //change settings to/from color neutral mode
-    visual.cloud.distanceFactor = bw ? this.controls.MAX_FACTOR : this.zones.size;//as of now, distance determined by darkness/blackness, so color neutral mode has not distance factor difference
-    visual.backgroundColor = bw ? "#800080" : "#000000";//black background for normal mode; purple for neutral mode
+    visual.cloud.distanceFactor = bw ? this.controls.MAX_FACTOR : this.zones.size;//as of now, distance determined by particle darkness, so color neutral mode has no distance factor difference
+    visual.backgroundColor = bw ? "#800080" : "#FFFFFF";//white background for normal mode; purple for neutral mode
     this.colorChange = bw;
     this.stats.twoTone = bw;
+    this.stats.redraw = true;
+}
+
+/**
+ * Toggles inversion of the background and wireframe colors. This function only needs
+ * to be called when color inversion mode is enable/disabled and at the beginning
+ * of every simulation restart if color inversion mode is enabled.
+ */
+Emergence.prototype.invertColors = function()
+{   //memory references
+    var visual = this.controls.visual;
+    var access = this.controls.access;
+    var ic = access.invertColors
+    var bc = visual.backgroundColor;
+    var wc = visual.wireframeColor;
+
+    //change settings to/from color inversion mode
+    visual.backgroundColor = ic ? "#000000" : "#FFFFFF";
+    visual.wireframeColor = ic ? "#FFFFFF" : "#000000";
     this.stats.redraw = true;
 }
