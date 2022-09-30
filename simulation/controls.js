@@ -412,6 +412,7 @@ Controls.prototype.setup = function()
     this.gui2.add(buttonPause, 'pauseSimulation').name('Pause');
 
     //gui setup
+    var controlsHeader = this.gui.addFolder(folderPrefix + 'CONTROLS' + folderSuffix).open();
     /* CONSTANTS */
     var controlsConstant = this.gui.addFolder(folderPrefix + 'Constants (must reload to take effect)' + folderSuffix);
     controlsConstant.add(buttonReload, 'reloadSimulation').name('Reload Simulation');
